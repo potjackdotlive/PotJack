@@ -766,9 +766,6 @@
     },
     {
       "name": "fund_rent_vault",
-      "docs": [
-        "Будь-хто може викликати"
-      ],
       "discriminator": [
         244,
         253,
@@ -825,9 +822,6 @@
     },
     {
       "name": "fund_vrf_vault",
-      "docs": [
-        "Будь-хто може викликати"
-      ],
       "discriminator": [
         157,
         124,
@@ -884,106 +878,6 @@
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "get_cumulative_tickets",
-      "discriminator": [
-        64,
-        57,
-        10,
-        126,
-        172,
-        20,
-        56,
-        215
-      ],
-      "accounts": [
-        {
-          "name": "round",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "sol_raffle"
-              },
-              {
-                "kind": "arg",
-                "path": "round_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "sol_raffle",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  111,
-                  108,
-                  95,
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "round_tickets",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  116,
-                  105,
-                  99,
-                  107,
-                  101,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "round"
-              }
-            ]
-          }
-        }
-      ],
-      "args": [
-        {
-          "name": "round_id",
-          "type": "u32"
-        }
-      ],
-      "returns": {
-        "vec": "u32"
-      }
     },
     {
       "name": "get_current_raffle_round_id",
@@ -1468,138 +1362,6 @@
       ]
     },
     {
-      "name": "initialize_round",
-      "discriminator": [
-        43,
-        135,
-        19,
-        93,
-        14,
-        225,
-        131,
-        188
-      ],
-      "accounts": [
-        {
-          "name": "sol_raffle",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  111,
-                  108,
-                  95,
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "round",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "sol_raffle"
-              },
-              {
-                "kind": "arg",
-                "path": "round_id"
-              }
-            ]
-          }
-        },
-        {
-          "name": "round_tickets",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  116,
-                  105,
-                  99,
-                  107,
-                  101,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "round"
-              }
-            ]
-          }
-        },
-        {
-          "name": "rent_vault",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  110,
-                  116,
-                  95,
-                  118,
-                  97,
-                  117,
-                  108,
-                  116
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "round_id",
-          "type": "u32"
-        }
-      ]
-    },
-    {
       "name": "initialize_sol_raffle",
       "discriminator": [
         73,
@@ -1967,58 +1729,6 @@
       ]
     },
     {
-      "name": "set_test_ticket_price",
-      "discriminator": [
-        143,
-        243,
-        124,
-        103,
-        50,
-        219,
-        62,
-        40
-      ],
-      "accounts": [
-        {
-          "name": "raffle_state",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101,
-                  95,
-                  115,
-                  116,
-                  97,
-                  116,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "price",
-          "type": {
-            "option": "u64"
-          }
-        }
-      ]
-    },
-    {
       "name": "set_winner_address",
       "discriminator": [
         155,
@@ -2167,31 +1877,9 @@
       ]
     },
     {
-      "name": "test_calculate_price",
-      "discriminator": [
-        42,
-        160,
-        154,
-        127,
-        134,
-        251,
-        71,
-        95
-      ],
-      "accounts": [
-        {
-          "name": "btc_price_feed"
-        },
-        {
-          "name": "sol_price_feed"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "withdraw_rent_vault",
       "docs": [
-        "Тільки authority"
+        "Only authority"
       ],
       "discriminator": [
         102,
@@ -2275,7 +1963,7 @@
     {
       "name": "withdraw_vrf_vault",
       "docs": [
-        "Тільки authority"
+        "Only authority"
       ],
       "discriminator": [
         14,
@@ -2929,12 +2617,6 @@
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "test_ticket_price",
-            "type": {
-              "option": "u64"
-            }
           }
         ]
       }
@@ -2963,12 +2645,6 @@
           {
             "name": "vrf_request_counter",
             "type": "u8"
-          },
-          {
-            "name": "test_ticket_price",
-            "type": {
-              "option": "u64"
-            }
           }
         ]
       }
