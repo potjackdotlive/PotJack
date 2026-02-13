@@ -1,0 +1,3635 @@
+{
+  "address": "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85",
+  "metadata": {
+    "name": "raffle",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Multi-token raffle program on Solana"
+  },
+  "instructions": [
+    {
+      "name": "buy_tickets_sol",
+      "discriminator": [
+        164,
+        132,
+        202,
+        239,
+        186,
+        235,
+        124,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rent_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  110,
+                  116,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets_purchase",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115,
+                  95,
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              },
+              {
+                "kind": "arg",
+                "path": "purchase_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "player",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "btc_price_feed"
+        },
+        {
+          "name": "sol_price_feed"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        },
+        {
+          "name": "purchase_index",
+          "type": "u32"
+        },
+        {
+          "name": "count",
+          "type": "u32"
+        },
+        {
+          "name": "max_cost",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "claim_prize_sol",
+      "discriminator": [
+        30,
+        87,
+        95,
+        109,
+        109,
+        76,
+        78,
+        2
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "winner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rent_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  110,
+                  116,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "beneficiary",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "consume_randomness",
+      "discriminator": [
+        190,
+        217,
+        49,
+        162,
+        99,
+        26,
+        73,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "client",
+          "signer": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  79,
+                  114,
+                  97,
+                  111,
+                  86,
+                  114,
+                  102,
+                  67,
+                  98,
+                  67,
+                  108,
+                  105,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  143,
+                  255,
+                  61,
+                  124,
+                  19,
+                  225,
+                  65,
+                  94,
+                  249,
+                  37,
+                  60,
+                  50,
+                  126,
+                  67,
+                  27,
+                  220,
+                  163,
+                  155,
+                  72,
+                  63,
+                  14,
+                  92,
+                  64,
+                  59,
+                  249,
+                  149,
+                  209,
+                  182,
+                  120,
+                  10,
+                  201,
+                  178
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "client.state",
+                "account": "Client"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                7,
+                71,
+                173,
+                29,
+                72,
+                82,
+                82,
+                233,
+                20,
+                120,
+                153,
+                70,
+                121,
+                62,
+                20,
+                190,
+                180,
+                19,
+                90,
+                77,
+                3,
+                51,
+                184,
+                165,
+                67,
+                121,
+                47,
+                165,
+                201,
+                207,
+                23,
+                209
+              ]
+            }
+          }
+        },
+        {
+          "name": "client_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  67,
+                  76,
+                  73,
+                  69,
+                  78,
+                  84,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "network_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  79,
+                  114,
+                  97,
+                  111,
+                  86,
+                  114,
+                  102,
+                  67,
+                  98,
+                  67,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                7,
+                71,
+                173,
+                29,
+                72,
+                82,
+                82,
+                233,
+                20,
+                120,
+                153,
+                70,
+                121,
+                62,
+                20,
+                190,
+                180,
+                19,
+                90,
+                77,
+                3,
+                51,
+                184,
+                165,
+                67,
+                121,
+                47,
+                165,
+                201,
+                207,
+                23,
+                209
+              ]
+            }
+          }
+        },
+        {
+          "name": "request",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  79,
+                  114,
+                  97,
+                  111,
+                  86,
+                  114,
+                  102,
+                  67,
+                  98,
+                  82,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "client"
+              },
+              {
+                "kind": "account",
+                "path": "request"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                7,
+                71,
+                173,
+                29,
+                72,
+                82,
+                82,
+                233,
+                20,
+                120,
+                153,
+                70,
+                121,
+                62,
+                20,
+                190,
+                180,
+                19,
+                90,
+                77,
+                3,
+                51,
+                184,
+                165,
+                67,
+                121,
+                47,
+                165,
+                201,
+                207,
+                23,
+                209
+              ]
+            }
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "fund_rent_vault",
+      "docs": [
+        "Будь-хто може викликати"
+      ],
+      "discriminator": [
+        244,
+        253,
+        189,
+        13,
+        179,
+        95,
+        31,
+        3
+      ],
+      "accounts": [
+        {
+          "name": "rent_vault",
+          "docs": [
+            "PDA for storing funds fo rent"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  110,
+                  116,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "funder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fund_vrf_vault",
+      "docs": [
+        "Будь-хто може викликати"
+      ],
+      "discriminator": [
+        157,
+        124,
+        39,
+        208,
+        227,
+        106,
+        171,
+        242
+      ],
+      "accounts": [
+        {
+          "name": "funder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "vrf_fee_vault",
+          "docs": [
+            "PDA for storing funds for VRF"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  114,
+                  102,
+                  95,
+                  102,
+                  101,
+                  101,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "get_cumulative_tickets",
+      "discriminator": [
+        64,
+        57,
+        10,
+        126,
+        172,
+        20,
+        56,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "round",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ],
+      "returns": {
+        "vec": "u32"
+      }
+    },
+    {
+      "name": "get_current_raffle_round_id",
+      "discriminator": [
+        141,
+        75,
+        189,
+        206,
+        206,
+        91,
+        23,
+        21
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [],
+      "returns": "u32"
+    },
+    {
+      "name": "get_raffle_round_count",
+      "discriminator": [
+        176,
+        188,
+        197,
+        73,
+        66,
+        119,
+        61,
+        5
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [],
+      "returns": "u32"
+    },
+    {
+      "name": "get_raffle_round_data",
+      "discriminator": [
+        47,
+        97,
+        138,
+        249,
+        89,
+        171,
+        155,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "RoundDataView"
+        }
+      }
+    },
+    {
+      "name": "get_raffle_round_result",
+      "discriminator": [
+        245,
+        203,
+        162,
+        129,
+        107,
+        148,
+        112,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "RoundResultView"
+        }
+      }
+    },
+    {
+      "name": "get_raffle_state",
+      "discriminator": [
+        239,
+        174,
+        166,
+        93,
+        167,
+        51,
+        94,
+        224
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": {
+          "name": "RaffleStateView"
+        }
+      }
+    },
+    {
+      "name": "get_ticket_price",
+      "discriminator": [
+        55,
+        148,
+        245,
+        154,
+        119,
+        254,
+        55,
+        48
+      ],
+      "accounts": [
+        {
+          "name": "btc_price_feed"
+        },
+        {
+          "name": "sol_price_feed"
+        }
+      ],
+      "args": [],
+      "returns": "u64"
+    },
+    {
+      "name": "get_ticket_price_in_btc",
+      "discriminator": [
+        139,
+        10,
+        86,
+        191,
+        207,
+        93,
+        60,
+        229
+      ],
+      "accounts": [],
+      "args": [],
+      "returns": "u64"
+    },
+    {
+      "name": "get_token_raffle",
+      "discriminator": [
+        182,
+        225,
+        154,
+        248,
+        119,
+        241,
+        162,
+        65
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": {
+          "name": "TokenRaffleView"
+        }
+      }
+    },
+    {
+      "name": "initialize_client_state",
+      "discriminator": [
+        135,
+        57,
+        192,
+        113,
+        176,
+        11,
+        209,
+        132
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "client_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  67,
+                  76,
+                  73,
+                  69,
+                  78,
+                  84,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_raffle",
+      "discriminator": [
+        110,
+        142,
+        92,
+        16,
+        15,
+        58,
+        89,
+        229
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "entrance_fee_percentage",
+          "type": "u8"
+        },
+        {
+          "name": "beneficiary",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "initialize_round",
+      "discriminator": [
+        43,
+        135,
+        19,
+        93,
+        14,
+        225,
+        131,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rent_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  110,
+                  116,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "initialize_sol_raffle",
+      "discriminator": [
+        73,
+        0,
+        235,
+        207,
+        121,
+        115,
+        50,
+        23
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "request_randomness",
+      "discriminator": [
+        213,
+        5,
+        173,
+        166,
+        37,
+        236,
+        31,
+        18
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vrf_fee_vault",
+          "docs": [
+            "PDA for VRF payment"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  114,
+                  102,
+                  95,
+                  102,
+                  101,
+                  101,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vrf",
+          "address": "VRFCBePmGTpZ234BhbzNNzmyg39Rgdd6VgdfhHwKypU"
+        },
+        {
+          "name": "client_state",
+          "docs": [
+            "State of a registered client."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  67,
+                  76,
+                  73,
+                  69,
+                  78,
+                  84,
+                  95,
+                  83,
+                  84,
+                  65,
+                  84,
+                  69
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "client",
+          "docs": [
+            "Registered client PDA."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  79,
+                  114,
+                  97,
+                  111,
+                  86,
+                  114,
+                  102,
+                  67,
+                  98,
+                  67,
+                  108,
+                  105,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  143,
+                  255,
+                  61,
+                  124,
+                  19,
+                  225,
+                  65,
+                  94,
+                  249,
+                  37,
+                  60,
+                  50,
+                  126,
+                  67,
+                  27,
+                  220,
+                  163,
+                  155,
+                  72,
+                  63,
+                  14,
+                  92,
+                  64,
+                  59,
+                  249,
+                  149,
+                  209,
+                  182,
+                  120,
+                  10,
+                  201,
+                  178
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "client_state"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                7,
+                71,
+                173,
+                29,
+                72,
+                82,
+                82,
+                233,
+                20,
+                120,
+                153,
+                70,
+                121,
+                62,
+                20,
+                190,
+                180,
+                19,
+                90,
+                77,
+                3,
+                51,
+                184,
+                165,
+                67,
+                121,
+                47,
+                165,
+                201,
+                207,
+                23,
+                209
+              ]
+            }
+          }
+        },
+        {
+          "name": "network_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  79,
+                  114,
+                  97,
+                  111,
+                  86,
+                  114,
+                  102,
+                  67,
+                  98,
+                  67,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                7,
+                71,
+                173,
+                29,
+                72,
+                82,
+                82,
+                233,
+                20,
+                120,
+                153,
+                70,
+                121,
+                62,
+                20,
+                190,
+                180,
+                19,
+                90,
+                77,
+                3,
+                51,
+                184,
+                165,
+                67,
+                121,
+                47,
+                165,
+                201,
+                207,
+                23,
+                209
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "seeds",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_test_ticket_price",
+      "discriminator": [
+        143,
+        243,
+        124,
+        103,
+        50,
+        219,
+        62,
+        40
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "price",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_winner_address",
+      "discriminator": [
+        155,
+        18,
+        56,
+        22,
+        22,
+        1,
+        188,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "sol_raffle",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  108,
+                  95,
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sol_raffle"
+              },
+              {
+                "kind": "arg",
+                "path": "round_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "round_tickets_purchase",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  111,
+                  117,
+                  110,
+                  100,
+                  95,
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116,
+                  115,
+                  95,
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "round"
+              },
+              {
+                "kind": "arg",
+                "path": "purchase_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "raffle_state"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u32"
+        },
+        {
+          "name": "purchase_index",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "test_calculate_price",
+      "discriminator": [
+        42,
+        160,
+        154,
+        127,
+        134,
+        251,
+        71,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "btc_price_feed"
+        },
+        {
+          "name": "sol_price_feed"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "withdraw_rent_vault",
+      "docs": [
+        "Тільки authority"
+      ],
+      "discriminator": [
+        102,
+        130,
+        133,
+        24,
+        194,
+        221,
+        219,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rent_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  110,
+                  116,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "raffle_state"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw_vrf_vault",
+      "docs": [
+        "Тільки authority"
+      ],
+      "discriminator": [
+        14,
+        31,
+        4,
+        129,
+        171,
+        151,
+        32,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "raffle_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  102,
+                  102,
+                  108,
+                  101,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "raffle_state"
+          ]
+        },
+        {
+          "name": "vrf_fee_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  114,
+                  102,
+                  95,
+                  102,
+                  101,
+                  101,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Client",
+      "discriminator": [
+        221,
+        237,
+        145,
+        143,
+        170,
+        194,
+        133,
+        115
+      ]
+    },
+    {
+      "name": "ClientState",
+      "discriminator": [
+        147,
+        10,
+        249,
+        80,
+        145,
+        124,
+        219,
+        60
+      ]
+    },
+    {
+      "name": "NetworkState",
+      "discriminator": [
+        212,
+        237,
+        148,
+        56,
+        97,
+        245,
+        51,
+        169
+      ]
+    },
+    {
+      "name": "RaffleState",
+      "discriminator": [
+        160,
+        186,
+        30,
+        174,
+        174,
+        156,
+        156,
+        244
+      ]
+    },
+    {
+      "name": "RequestAccount",
+      "discriminator": [
+        108,
+        23,
+        6,
+        158,
+        184,
+        6,
+        152,
+        121
+      ]
+    },
+    {
+      "name": "Round",
+      "discriminator": [
+        87,
+        127,
+        165,
+        51,
+        73,
+        78,
+        116,
+        174
+      ]
+    },
+    {
+      "name": "RoundTickets",
+      "discriminator": [
+        100,
+        189,
+        20,
+        223,
+        39,
+        44,
+        161,
+        211
+      ]
+    },
+    {
+      "name": "RoundTicketsPurchase",
+      "discriminator": [
+        46,
+        50,
+        110,
+        225,
+        226,
+        249,
+        150,
+        135
+      ]
+    },
+    {
+      "name": "TokenRaffle",
+      "discriminator": [
+        10,
+        32,
+        165,
+        142,
+        80,
+        191,
+        11,
+        4
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AllRequestsCompleted",
+      "discriminator": [
+        206,
+        125,
+        191,
+        52,
+        97,
+        111,
+        59,
+        207
+      ]
+    },
+    {
+      "name": "FirstTicketBonusAwarded",
+      "discriminator": [
+        29,
+        247,
+        196,
+        38,
+        112,
+        13,
+        88,
+        238
+      ]
+    },
+    {
+      "name": "PrizeClaimed",
+      "discriminator": [
+        213,
+        150,
+        192,
+        76,
+        199,
+        33,
+        212,
+        38
+      ]
+    },
+    {
+      "name": "StatusChanged",
+      "discriminator": [
+        146,
+        235,
+        222,
+        125,
+        145,
+        246,
+        34,
+        240
+      ]
+    },
+    {
+      "name": "TicketPurchased",
+      "discriminator": [
+        108,
+        59,
+        246,
+        95,
+        84,
+        145,
+        13,
+        71
+      ]
+    },
+    {
+      "name": "WinnerPicked",
+      "discriminator": [
+        147,
+        193,
+        81,
+        221,
+        165,
+        98,
+        201,
+        233
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "RoundDoesNotExist",
+      "msg": "Round does not exist"
+    }
+  ],
+  "types": [
+    {
+      "name": "AllRequestsCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "Client",
+      "docs": [
+        "This PDA represents a state of a registered client."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "The owner is able to manage the client:",
+              "",
+              "-   withdraw client funds",
+              "-   transfer ownership"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "program",
+            "docs": [
+              "An address of a registered program."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "state",
+            "docs": [
+              "An arbitrary PDA that belongs to the client program.",
+              "",
+              "This is the request authority."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "num_requests",
+            "docs": [
+              "Number of requests made by the client."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "callback",
+            "docs": [
+              "An optional client-level callback.",
+              "",
+              "**Note:** this callback does not apply to [`RequestAlt`].",
+              "",
+              "If it is `None`, then no callback will be called upon request fulfill, but you can",
+              "override this using the request-level callback (see [`RequestParams::callback`]).",
+              "",
+              "You can update this value using the [`SetCallback`] instruction.",
+              "",
+              "[`RequestParams::callback`]: crate::RequestParams::callback",
+              "[`SetCallback`]: crate::SetCallback",
+              "[`RequestAlt`]: crate::RequestAlt"
+            ],
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "ValidatedCallback"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClientState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FirstTicketBonusAwarded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "round_start_time",
+            "type": "i64"
+          },
+          {
+            "name": "round_end_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Fulfilled",
+      "docs": [
+        "Fulfilled request representation."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "randomness",
+            "docs": [
+              "Generated randomness.",
+              "",
+              "It is validated within the fulfill instruction. Please look into the account history logs",
+              "and VRF events to observe the individual components."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "responses",
+            "docs": [
+              "Individual responses constituting the randomness.",
+              "",
+              "This going to be `Some` within the callback invocation, and `None` afterwards."
+            ],
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": {
+                    "name": "Response"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NetworkConfiguration",
+      "docs": [
+        "Oracle configuration"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "An authority."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "Treasury account address."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "request_fee",
+            "docs": [
+              "Per-request fee paid by a client."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "callback_deadline",
+            "docs": [
+              "Callback deadline measured in slots (1 slot is approximately 400ms).",
+              "",
+              "If callback keeps failing util this deadline reached, then the request",
+              "will be fulfilled without calling the callback.",
+              "",
+              "Note that well-written callback should never fail, so this should never",
+              "apply to your client."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fulfill_authorities",
+            "docs": [
+              "This parties are authorized to fulfill requests."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NetworkState",
+      "docs": [
+        "This PDA holds oracle state and configuration."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "docs": [
+              "Account bump."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "config",
+            "docs": [
+              "Active configuration."
+            ],
+            "type": {
+              "defined": {
+                "name": "NetworkConfiguration"
+              }
+            }
+          },
+          {
+            "name": "num_requests",
+            "docs": [
+              "Total number of received requests."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "num_registered",
+            "docs": [
+              "Total number of registered clients."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "num_terminated",
+            "docs": [
+              "Total number of terminated clients."
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pending",
+      "docs": [
+        "Pending randomness request."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "responses",
+            "docs": [
+              "Responses collected so far."
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Response"
+                }
+              }
+            }
+          },
+          {
+            "name": "callback",
+            "docs": [
+              "Callback (if any)."
+            ],
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "ValidatedCallback"
+                }
+              }
+            }
+          },
+          {
+            "name": "callback_override",
+            "docs": [
+              "If `true` then [`Pending::callback`] is a request-level callback."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PrizeClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RaffleState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "entrance_fee_percentage",
+            "type": "u8"
+          },
+          {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "vrf_request_counter",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "test_ticket_price",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RaffleStateView",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "entrance_fee_percentage",
+            "type": "u8"
+          },
+          {
+            "name": "beneficiary",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "vrf_request_counter",
+            "type": "u8"
+          },
+          {
+            "name": "test_ticket_price",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RequestAccount",
+      "docs": [
+        "The account holding a randomness request state."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "slot",
+            "docs": [
+              "The slot this request was created at."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "client",
+            "docs": [
+              "The client created the request."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "seed",
+            "docs": [
+              "Request seed."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "state",
+            "docs": [
+              "The state of this randomness request."
+            ],
+            "type": {
+              "defined": {
+                "name": "RequestState"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RequestState",
+      "docs": [
+        "Randomness request state."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending",
+            "fields": [
+              {
+                "defined": {
+                  "name": "Pending"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Fulfilled",
+            "fields": [
+              {
+                "defined": {
+                  "name": "Fulfilled"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Response",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "randomness",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Round",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "initialized",
+            "type": "bool"
+          },
+          {
+            "name": "token_raffle",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          },
+          {
+            "name": "commission_balance",
+            "type": "u64"
+          },
+          {
+            "name": "purchases_count",
+            "type": "u32"
+          },
+          {
+            "name": "total_tickets",
+            "type": "u32"
+          },
+          {
+            "name": "winner_ticket_index",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "winner_purchase_index",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "winner_address",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "prize_claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundDataView",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "token_raffle",
+            "type": "pubkey"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          },
+          {
+            "name": "commission_balance",
+            "type": "u64"
+          },
+          {
+            "name": "winner_address",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "winner_purchase_index",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "winner_ticket_index",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "round_players",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "RoundPlayerDataWithAddress"
+                }
+              }
+            }
+          },
+          {
+            "name": "prize_claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundPlayerDataWithAddress",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "tickets_count",
+            "type": "u32"
+          },
+          {
+            "name": "has_bonus_ticket",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundResultView",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winner_address",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "winner_ticket_index",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "round_players",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "RoundPlayerDataWithAddress"
+                }
+              }
+            }
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "Completed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundTickets",
+      "serialization": "bytemuck",
+      "repr": {
+        "kind": "c"
+      },
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round",
+            "type": "pubkey"
+          },
+          {
+            "name": "cumulative_tickets_1",
+            "type": {
+              "array": [
+                "u32",
+                1024
+              ]
+            }
+          },
+          {
+            "name": "cumulative_tickets_2",
+            "type": {
+              "array": [
+                "u32",
+                1024
+              ]
+            }
+          },
+          {
+            "name": "len",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u8",
+                3
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundTicketsPurchase",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round",
+            "type": "pubkey"
+          },
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "purchase_index",
+            "type": "u32"
+          },
+          {
+            "name": "tickets_count",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "old_status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "new_status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TicketPurchased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "count",
+            "type": "u32"
+          },
+          {
+            "name": "total_amount",
+            "type": "u64"
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          },
+          {
+            "name": "commission_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRaffle",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "current_round_id",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "current_round_status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "current_round_end_time",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "total_rounds",
+            "type": "u32"
+          },
+          {
+            "name": "pending_rounds",
+            "type": {
+              "vec": "u32"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenRaffleView",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "current_round_id",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "current_round_status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "current_round_end_time",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "total_rounds",
+            "type": "u32"
+          },
+          {
+            "name": "pending_rounds",
+            "type": {
+              "vec": "u32"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedCallback",
+      "docs": [
+        "See [`Callback`]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "remaining_accounts",
+            "docs": [
+              "See [`Callback::remaining_accounts`]."
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "ValidatedRemainingAccount"
+                }
+              }
+            }
+          },
+          {
+            "name": "data",
+            "docs": [
+              "See [`Callback::data`]."
+            ],
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ValidatedRemainingAccount",
+      "docs": [
+        "Validated [`RemainingAccount`]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_writable",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinnerPicked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "token",
+            "type": "pubkey"
+          },
+          {
+            "name": "round",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "type": "u32"
+          },
+          {
+            "name": "winner_purchase_index",
+            "type": "u32"
+          },
+          {
+            "name": "winner_ticket_index",
+            "type": "u32"
+          },
+          {
+            "name": "prize_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

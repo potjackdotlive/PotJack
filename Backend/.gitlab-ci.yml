@@ -1,0 +1,111 @@
+default:
+  image: docker:26.1.3
+  services:
+    - docker:26.1.3-dind
+
+.variables_dev_qa: &variables_dev
+  IMAGE_VERSION: ${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHORT_SHA}
+
+.variables_prod: &variables_prod
+  IMAGE_VERSION: ${CI_COMMIT_TAG}
+
+variables:
+  CONTAINER_IMAGE: ${CI_REGISTRY_IMAGE}:${IMAGE_VERSION}
+
+.build_job:
+  stage: build
+  script:
+    - echo "Building image $CONTAINER_IMAGE"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CONTAINER_IMAGE .
+    - docker push $CONTAINER_IMAGE
+  allow_failure: false
+  when: manual
+
+build:dev:
+  stage: build
+  extends: .build_job
+  variables:
+    <<: *variables_dev
+    PLATFORM: linux/amd64
+  tags:
+    - runner_1_docker
+  only:
+    - /^bug/
+    - /^feature/
+    - master
+
+build:prod:
+  stage: build
+  extends: .build_job
+  variables:
+    <<: *variables_prod
+    PLATFORM: linux/amd64
+  tags:
+    - runner_1_docker
+  only:
+    - tags
+
+.deploy_job:
+  stage: deploy
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - echo "Deploying ${CONTAINER_IMAGE} to ${CI_ENVIRONMENT_NAME} environment"
+    - envsubst < docker-compose.yml_template > docker-compose.yml
+
+    - WORKDIR=/home/${SSH_USER}/builds/${CI_PROJECT_PATH_SLUG}-${CI_ENVIRONMENT_NAME}
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "mkdir -p ${WORKDIR}"
+
+    - rsync -avz --delete -e "ssh"
+      docker-compose.yml
+      ${SSH_USER}@${SSH_HOST}:${WORKDIR}
+
+    - |-
+      ssh -T -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} << EOF
+      echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+      cd ${WORKDIR}
+      echo "Host: "; hostname
+      echo "Current dir: "; pwd
+      echo "Pulling new image (${CONTAINER_IMAGE})"
+      docker pull --quiet ${CONTAINER_IMAGE}
+      echo "Restarting container ..."
+      docker compose up -d --force-recreate --quiet-pull bclottery-api
+      echo "Logging out from registry ..."
+      docker logout $CI_REGISTRY_IMAGE
+      echo "Checking status of containers ..."
+      docker compose ps
+      EOF
+  allow_failure: false
+
+
+deploy:stage:
+  needs: [ "build:dev" ]
+  extends: .deploy_job
+  variables:
+    <<: *variables_dev
+  environment:
+    name: stage
+  only:
+    - /^bug/
+    - /^feature/
+    - master
+  tags:
+    - runner_1
+
+deploy:prod:
+  needs: [ "build:prod" ]
+  extends: .deploy_job
+  variables:
+    <<: *variables_prod
+  environment:
+    name: prod
+  only:
+    - tags
+  tags:
+    - runner_1

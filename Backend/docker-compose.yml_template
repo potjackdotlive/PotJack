@@ -1,0 +1,50 @@
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: blockchain-lottery-db-${CI_ENVIRONMENT_NAME}
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # GraphQL API service
+  bclottery-api:
+    image: ${CONTAINER_IMAGE}
+    container_name: blockchain-lottery-api-${CI_ENVIRONMENT_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      DB_HOST: blockchain-lottery-db-${CI_ENVIRONMENT_NAME}
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      # Server configuration
+      PORT: 4000
+      NODE_ENV: ${NODE_ENV}
+      LOG_LEVEL: ${LOG_LEVEL}
+      WRITE_ERRORS_TO_FILE: ${WRITE_ERRORS_TO_FILE} # bool
+      WRITE_LOGS_TO_FILE: ${WRITE_LOGS_TO_FILE} # bool
+      DISABLE_BLOCKCHAIN_SYNC: ${DISABLE_BLOCKCHAIN_SYNC}
+      # Blockchain configuration
+      BLOCKCHAIN_CONFIG_PATH: ${BLOCKCHAIN_CONFIG_PATH}
+      CORS_ORIGIN: '${CORS_ORIGIN}'
+      SOLANA_PAYER_SECRET_KEY: ${SOLANA_PAYER_SECRET_KEY}
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,0 +1,10 @@
+{
+  "rpcUrl": "https://api.devnet.solana.com",
+  "solToUsdFeedPubkey": "ALLUQG1NBPDzcYiEsKRKnV1pX2jBVWfQu1enu9qAA9qx",
+  "btcToUsdFeedPubkey": "9TrAgn8hHYhun7Qy3DHcm3yjam6LjkuVqTo9gaexMjoA",
+  "crossbarUrl": "https://crossbar.switchboard.xyz",
+  "numSignatures": 4,
+  "skipPreflight": false,
+  "commitment": "confirmed",
+  "maxRetries": 5
+}

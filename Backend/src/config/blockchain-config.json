@@ -1,0 +1,74 @@
+{
+  "syncThresholdBlocks": 5,
+  "blockchains": [
+    {
+      "name": "ethereum",
+      "rpcUrl": "wss://eth-sepolia.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 11155111,
+      "contractAddresses": [
+        "0x61BA9Acfff41daB09128433B84eB703Fb60bE48C"
+      ]
+    },
+    {
+      "name": "arbitrum",
+      "rpcUrl": "wss://arb-sepolia.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 421614,
+      "contractAddresses": [
+        "0xF7aD0aA38851ED5eAb7183392bE3194DcB184E8B"
+      ]
+    },
+    {
+      "name": "polygon",
+      "rpcUrl": "wss://polygon-amoy.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 80002,
+      "contractAddresses": [
+        "0xeAD94cE13840914Bc071aAaDd9c5d72044ad8299"
+      ]
+    },
+    {
+      "name": "optimism",
+      "rpcUrl": "wss://opt-sepolia.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 11155420,
+      "contractAddresses": [
+        "0xB3e9fD5e3d72C4f2741aF620E30AA23102dfa51e"
+      ]
+    },
+    {
+      "name": "avalanche",
+      "rpcUrl": "wss://avax-fuji.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 43113,
+      "contractAddresses": [
+        "0x2023c2fb85A774d30BB6339badC3440E804f5C34"
+      ]
+    },
+    {
+      "name": "bnb",
+      "rpcUrl": "wss://bnb-testnet.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 97,
+      "contractAddresses": [
+        "0x354ACE9E8885aD798db03F65635bBF2aFab8A4ee"
+      ]
+    },
+    {
+      "name": "base",
+      "rpcUrl": "wss://base-sepolia.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 84532,
+      "contractAddresses": [
+        "0x5A1606039c7Ac503d6784553fDeaC49a8d091E56"
+      ]
+    },
+    {
+      "name": "solana",
+      "rpcUrl": "https://solana-devnet.g.alchemy.com/v2/8lD0BjGtBaar-ubYvv4Dp",
+      "chainId": 0,
+      "contractAddresses": [
+        ""
+      ],
+      "extra": {
+        "programId": "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85",
+        "commitment": "confirmed",
+        "idlPath": "./idl/raffle.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "sepolia": {
+    "name": "Sepolia Testnet",
+    "chainId": 1234,
+    "vrfCoordinator": "0x0",
+    "subscriptionId": "1234",
+    "keyHash": "0x0",
+    "callbackGasLimit": "500000",
+    "btcPriceFeed": "0x0",
+    "ethPriceFeed": "0x0",
+    "entranceFee": "1",
+    "beneficiaryAddress": "0x0"
+  }
+}
