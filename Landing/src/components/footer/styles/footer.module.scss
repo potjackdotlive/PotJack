@@ -1,0 +1,124 @@
+@use '@/scss/main' as *;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin: 352px auto 0;
+  padding: 40px 24px 24px;
+  text-align: center;
+  max-width: 760px !important;
+
+  @include media-up-md {
+    margin-top: 443px;
+    padding: 48px 0 24px;
+  }
+
+  @include media-up-lg {
+    margin-top: 545px;
+  }
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 580px;
+}
+
+.call {
+  color: var(--white-80p);
+  @include label-md-desktop;
+
+  @include media-up-md {
+    @include label-md-desktop;
+  }
+}
+
+.description {
+  color: var(--white-80p);
+  @include body-md-mobile;
+
+  @include media-up-md {
+    @include body-md-desktop;
+  }
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+
+  @include media-up-md {
+    flex-wrap: nowrap;
+  }
+}
+
+.menuItem {
+  width: fit-content;
+  color: var(--white);
+  @include body-md-mobile;
+
+  @include media-up-md {
+    @include body-md-desktop;
+  }
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.copyright {
+  color: var(--white-50p);
+  @include body-md-mobile;
+
+  @include media-up-md {
+    @include body-md-desktop;
+  }
+}
+
+.bgVideo {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: -1;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 1263px;
+}
+
+.videoWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  z-index: -1;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-mask-image:
+          linear-gradient(to top, transparent 0%, white 0%, white 80%, transparent 100%);
+  -webkit-mask-composite: intersect;
+  mask-composite: intersect;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+
+  @media (min-width: 1024px) {
+    -webkit-mask-image:
+            linear-gradient(to top, transparent 0%, white 0%, white 80%, transparent 100%),
+            linear-gradient(to left, transparent 0%, white 20%, white 80%, transparent 100%);
+  }
+}

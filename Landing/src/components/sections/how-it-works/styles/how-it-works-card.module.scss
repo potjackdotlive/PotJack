@@ -1,0 +1,124 @@
+@use '@/scss/main' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 12px 12px 24px 12px;
+  width: 304px;
+  min-height: 457px;
+  background-color: var(--surface-2p);
+  background-size: 304px;
+  background-repeat: no-repeat;
+  border-radius: 40px;
+  box-shadow: 2px 4px 16px 0 rgba(248, 248, 248, 0.06) inset, 0 24px 24px -16px rgba(5, 5, 5, 0.09), 0px 6px 13px 0px rgba(5, 5, 5, 0.10), 0px 6px 4px -4px rgba(5, 5, 5, 0.10), 0px 5px 1.5px -4px rgba(5, 5, 5, 0.25);
+  backdrop-filter: blur(50px);
+
+  @include media-up-md {
+    padding-bottom: 16px;
+    width: 395px;
+    min-height: 598px;
+    background-size: 395px;
+  }
+
+  &::before {
+    @include mask;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: 40px;
+    background: linear-gradient(158deg, rgba(255, 255, 255, 0.06) 14.19%, rgba(255, 255, 255, 0.00) 50.59%, rgba(255, 255, 255, 0.00) 68.79%, rgba(255, 255, 255, 0.02) 105.18%);
+    -webkit-mask-composite: xor;
+    z-index: -1;
+  }
+}
+
+.progressLine {
+  width: 760px;
+  height: 48px;
+  position: absolute;
+  top: -66px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-image: url("/how-it-works/progress-line.png");
+  background-size: cover;
+
+  @include media-up-md {
+    top: -72px;
+  }
+}
+
+.indexWrapper {
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  @include media-up-md {
+    top: -24px;
+  }
+}
+
+.index {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 52px;
+  height: 38px;
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 32px;
+  background: linear-gradient(0deg, rgba(248, 248, 248, 0.10) 0%, rgba(248, 248, 248, 0.10) 100%), rgba(40, 40, 40, 1);
+  box-shadow: 0 0 0 2px rgba(18, 18, 18, 0.20), 2px 4px 16px 0 rgba(248, 248, 248, 0.06) inset;
+  backdrop-filter: blur(50px);
+  color: var(--surface-95p);
+  font-family: "Geist Mono", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 14px;
+  text-transform: uppercase;
+
+  @include media-up-md {
+    height: 45px;
+    width: 65px;
+  }
+
+  &::before {
+    @include mask;
+    z-index: 1;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(158deg, rgba(255, 255, 255, 0.10) 14.19%, rgba(255, 255, 255, 0.00) 50.59%, rgba(255, 255, 255, 0.00) 68.79%, rgba(255, 255, 255, 0.03) 105.18%);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 8px;
+  min-height: 160px;
+
+  @include media-up-md {
+    padding: 0 20px;
+  }
+}
+
+.title {
+  color: var(--surface-95p);
+  @include label-lg-mobile;
+
+  @include media-up-md {
+    @include label-lg-desktop;
+  }
+}
+
+.description {
+  color: var(--surface-80p);
+  @include body-md-mobile;
+
+  @include media-up-md {
+    @include body-md-desktop;
+  }
+}

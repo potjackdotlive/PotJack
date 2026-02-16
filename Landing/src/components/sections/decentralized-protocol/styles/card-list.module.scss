@@ -1,0 +1,21 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  align-items: center;
+  margin-left: 28px;
+  width: 100%;
+
+  @include media-up-md {
+    margin-left: 40px;
+  }
+}
+
+.slide {
+  width: fit-content !important;
+}
+
+.sliderWrapper {
+  align-items: center;
+}
+

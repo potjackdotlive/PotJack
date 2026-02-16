@@ -1,0 +1,63 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+
+  @include media-up-md {
+    gap: 64px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
+  margin-top: 82px;
+  max-width: 724px;
+  text-align: center;
+  z-index: 1;
+
+  @include media-up-md {
+    margin-top: 140px;
+    padding: 0 24px;
+    max-width: 640px;
+  }
+
+  @include media-up-lg {
+    margin-top: 250px;
+    padding: 0;
+    max-width: 724px;
+  }
+}
+
+.title {
+  max-width: 655px;;
+  @include h3-mobile;
+  @include gradient-title;
+
+  @include media-up-md {
+    @include h3-desktop;
+  }
+}
+
+.description {
+  color: var(--white-80p);
+  @include body-lg-mobile;
+
+  @include media-up-md {
+    @include body-lg-desktop;
+  }
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}

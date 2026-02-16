@@ -1,0 +1,47 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 124px 8px 8px !important;
+  @include container;
+
+  @include media-up-md {
+    gap: 64px;
+    padding: 164px 24px 8px !important;
+  }
+}
+
+.header {
+  padding: 0 8px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 24px;
+  width: 100%;
+  min-height: 1676px;
+  background-image: url('/advantage/advantage-xs-bg.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  @include media-up-md {
+    gap: 80px;
+    padding: 40px;
+    margin: 0 24px;
+    min-height: 1782px;
+    background-image: url('/advantage/advantage-md-bg.png');
+  }
+
+  @include media-up-lg {
+    padding: 110px 40px 80px 40px;
+    margin: 0;
+    min-height: 1224px;
+    background-image: url('/advantage/advantage-lg-bg.png');
+  }
+}

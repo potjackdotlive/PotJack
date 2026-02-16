@@ -1,0 +1,23 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 0 16px;
+  margin: 0 auto;
+  max-width: 1328px;
+  width: 100%;
+
+  @include media-up-md {
+    gap: 8px;
+    padding: 0 24px;
+  }
+
+  @include media-up-lg {
+    padding: 0 12px;
+  }
+}
+

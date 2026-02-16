@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+  <g clip-path="url(#globe-clipPath)">
+    <path fill-rule="evenodd" d="M8 2a6 6 0 1 0 0 12A6 6 0 0 0 8 2ZM.667 8a7.333 7.333 0 1 1 14.666 0A7.333 7.333 0 0 1 .667 8Z" clip-rule="evenodd"/>
+    <path fill-rule="evenodd" d="M.667 8c0-.369.298-.667.666-.667h13.334a.667.667 0 1 1 0 1.333H1.333A.667.667 0 0 1 .667 8Z" clip-rule="evenodd"/>
+    <path fill-rule="evenodd" d="M8 .667c.187 0 .366.079.492.217a10.867 10.867 0 0 1 2.841 7.13 10.867 10.867 0 0 1-2.84 7.103.667.667 0 0 1-.985 0 10.867 10.867 0 0 1-2.841-7.13A10.867 10.867 0 0 1 7.507.883.667.667 0 0 1 8 .667ZM6 8a9.533 9.533 0 0 0 2 5.633A9.533 9.533 0 0 0 10 8a9.533 9.533 0 0 0-2-5.632A9.533 9.533 0 0 0 6 8Z" clip-rule="evenodd"/>
+  </g>
+  <defs>
+    <clipPath id="globe-clipPath">
+      <path d="M0 0h16v16H0z"/>
+    </clipPath>
+  </defs>
+</svg>

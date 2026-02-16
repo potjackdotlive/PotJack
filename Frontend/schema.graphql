@@ -1,0 +1,214 @@
+type ServerTime {
+  timestamp: Float!
+  iso: String!
+}
+
+# User type representing a blockchain address
+type User {
+  id: ID!
+  address: String!
+  totalTickets: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type UserWins {
+  totalWins: Int!
+}
+
+type Winner {
+  address: String!
+  badges: Badges!
+}
+
+# WinEvent type representing a lottery win
+type WinEvent {
+  id: ID!
+  winner: Winner!
+  token: String!
+  roundId: Int!
+  ticketId: String! # in fact, tickets array index as big number as string
+  contractAddress: String!
+  amount: String! # big number which should be shifted according to token decimals count
+  playersCount: Int!
+  blockTimestamp: String!
+  transactionHash: String!
+  logIndex: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type WinStats {
+  content: [WinEvent!]!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+# Badges type for user badges
+type Badges {
+  hasWhaleBadge: Boolean!
+  hasCrownBadge: Boolean!
+  hasDiamondBadge: Boolean!
+}
+
+# UserStats type for user statistics with badge information
+type UserStats {
+  rank: Int!
+  userAddress: String!
+  tickets: Int!
+  totalWins: Int!
+  badges: Badges!
+  contractAddress: String!
+  tokenAddress: String!
+  roundId: Int!
+  isWinner: Boolean
+}
+
+type UserStatsResponse {
+  content: [UserStats!]!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+type SelfStats {
+  rank: Int # Maybe null if not found
+  userAddress: String!
+  tickets: Int!
+  totalWins: Int!
+  badges: Badges!
+  contractAddress: String
+  tokenAddress: String
+  roundId: Int
+  isWinner: Boolean
+}
+
+type RoundPlayer {
+  id: ID!
+  address: String!
+  totalTickets(roundId: Int, contractAddress: String, tokenAddress: String): Int!
+  hasBonusTicket(roundId: Int, contractAddress: String, tokenAddress: String): Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Notification {
+  id: ID!
+  isRead: Boolean!
+  winEvent: WinEvent!
+  isWinner: Boolean!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type NotificationsResponse {
+  notifications: [Notification!]!
+  totalCount: Int!
+  unreadCount: Int!
+}
+
+type BlockchainConnectionStatus {
+  blockchainName: String!
+  isConnected: Boolean!
+  reconnectAttempts: Int!
+}
+
+type BlockchainConnectionStatusResponse {
+  connections: [BlockchainConnectionStatus!]!
+  totalConnections: Int!
+  healthyConnections: Int!
+}
+
+type UnclaimedPrizes {
+  totalPrizeAmount: String!
+  rounds: [Int!]!
+}
+
+type UpdateFeedsResponse {
+  success: Boolean!
+  results: [FeedUpdateResult!]!
+}
+
+# Individual feed update result
+type FeedUpdateResult {
+  feedName: String!
+  success: Boolean!
+  signature: String
+  error: String
+}
+
+# Query type for fetching data
+type Query {
+  serverTime: ServerTime!
+
+  # Get a user by address
+  user(address: String!): User
+
+  userWins(address: String!): UserWins
+
+  # Get win statistics
+  winStats(
+    walletAddress: String
+    contractAddress: String
+    tokenAddress: String
+    search: String
+    limit: Int # Default 10
+    offset: Int # Default 0
+  ): WinStats!
+
+  # Get user statistics with badge information
+  userStats(
+    walletAddress: String
+    contractAddress: String
+    tokenAddress: String
+    roundId: Int
+    limit: Int # Default 10
+    offset: Int # Default 0
+  ): UserStatsResponse!
+
+  # Get self statistics with badge information
+  selfStats(
+    walletAddress: [String!]!
+    contractAddress: String
+    tokenAddress: String
+    roundId: Int
+  ): [SelfStats!]!
+
+  roundPlayers(
+    contractAddress: String
+    tokenAddress: String
+    roundId: Int
+  ): [RoundPlayer!]!
+
+  notifications(
+    userAddress: String!
+    limit: Int
+    offset: Int
+    unreadOnly: Boolean
+  ): NotificationsResponse!
+
+  # Get blockchain connection status
+  blockchainConnectionStatus: BlockchainConnectionStatusResponse!
+
+  unclaimedPrizes(
+    winnerAddress: String
+    contractAddress: String
+  ): UnclaimedPrizes
+}
+
+type Mutation {
+  markNotificationAsRead(
+    notificationId: ID!
+    userAddress: String!
+  ): Boolean!
+
+  markAllNotificationsAsRead(
+    userAddress: String!
+  ): Int!
+
+  # Force reconnection to a blockchain
+  forceReconnectBlockchain(
+    blockchainName: String!
+  ): Boolean!
+
+  updatePriceFeeds: UpdateFeedsResponse!
+}

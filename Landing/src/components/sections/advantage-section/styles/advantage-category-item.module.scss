@@ -1,0 +1,32 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  color: var(--white);
+  @include label-md-mobile;
+
+  @include media-up-md {
+    @include label-md-desktop;
+  }
+}
+
+.description {
+  max-width: 364px;
+  color: var(--white-50p);
+  @include body-lg-mobile;
+
+  @include media-up-md {
+    @include body-lg-desktop;
+  }
+}

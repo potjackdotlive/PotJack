@@ -1,0 +1,283 @@
+:root {
+  font-family: "Geist Variable", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #131313;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  background-color: #131313;
+}
+
+.ant-typography {
+  font-family: "Geist Variable", sans-serif;
+  color: inherit;
+}
+
+.ant-modal,
+.ant-btn,
+.ant-menu,
+.ant-input {
+  font-family: "Geist Variable", sans-serif;
+  color: var(--color-neutral-text-neutral-foreground, #fff);
+}
+
+.ant-alert {
+  &.ant-alert-with-description .ant-alert-icon {
+    margin: 0;
+    margin-inline-end: 0;
+  }
+
+  & .ant-alert-content {
+    & .ant-alert-message {
+      margin-bottom: 4px;
+      color: inherit;
+
+      /* bodyDefault/bodyDefaultMd */
+      font-family: "Geist Variable", sans-serif;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 20px; /* 142.857% */
+    }
+
+    & .ant-alert-description {
+      color: inherit;
+
+      /* bodyDefault/bodyDefaultRg */
+      font-family: "Geist Variable", sans-serif;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px; /* 142.857% */
+
+      & .ant-alert-icon {
+        margin: 0;
+        margin-inline-end: 0;
+      }
+    }
+  }
+}
+
+a {
+  font-weight: 500;
+  color: var(--zinc-400);
+  text-decoration: inherit;
+}
+
+.ant-table-wrapper {
+  width: 100%;
+}
+
+.ant-spin .ant-spin-dot-holder {
+  color: var(--color-primary-text-secondary-foreground, #c084fc);
+}
+
+.ant-table thead tr th.ant-table-cell {
+  &::before {
+    content: none !important;
+  }
+
+  background: var(--color-item-background-card, #131313);
+  color: var(--color-muted-text-muted-foreground, #a1a1aa);
+
+  /* bodyDefault/bodyDefaultMd */
+  font-family: "Geist Variable", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px; /* 142.857% */
+}
+
+h1.ant-typography {
+  font-family: "Geist Variable", sans-serif;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 36px; /* 120% */
+  letter-spacing: -0.225px;
+}
+
+input.ant-input,
+input.ant-input-outlined {
+  border-radius: var(--radius-radius-md, 12px);
+  border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
+  background: var(--color-neutral-background-neutral, #131313);
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  color: var(--color-neutral-text-neutral-foreground, #fff);
+  padding: 4px 12px;
+  font-family: "Geist Variable", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px; /* 142.857% */
+  min-height: 38px;
+
+  &::placeholder {
+    color: var(--color-muted-text-muted-foreground, #a1a1aa);
+  }
+}
+
+span.ant-input-affix-wrapper {
+  border-radius: var(--radius-radius-md, 12px);
+  border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
+  background: var(--color-neutral-background-neutral, #131313);
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  color: var(--color-muted-text-muted-foreground, #a1a1aa);
+  padding: 4px 12px;
+  font-family: "Geist Variable", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px; /* 142.857% */
+  height: 38px;
+
+  &:hover {
+    border-radius: var(--radius-radius-md, 12px);
+    border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
+    background: var(--color-neutral-background-neutral, #131313);
+
+    /* system/inputRing */
+    box-shadow:
+      0px 0px 0px 1px #a1a1aa,
+      0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  }
+
+  &:focus-within,
+  &:focus {
+    border-radius: var(--radius-radius-md, 12px);
+    border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
+    background: var(--color-neutral-background-neutral, #131313);
+
+    /* system/inputRing */
+    box-shadow:
+      0px 0px 0px 1px #a1a1aa,
+      0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  }
+
+  & input.ant-input {
+    min-height: unset;
+  }
+
+  &::placeholder {
+    color: var(--color-muted-text-muted-foreground, #a1a1aa);
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+a.active {
+  color: var(--zinc-50);
+}
+
+a:hover {
+  color: var(--zinc-500);
+}
+
+.ant-btn:not(:disabled):focus-visible {
+  outline: none;
+}
+
+p {
+  margin: 0;
+}
+
+.ant-app {
+  color: var(--basic-light);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: "Geist Variable", sans-serif;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    background-color: #131313;
+  }
+}
+
+.ant-app {
+  background: url("/stars.png") no-repeat top center;
+}
+
+.ant-divider.ant-divider-horizontal {
+  background: var(--color-neutral-border-neutral, #3f3f46);
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-height: 1px;
+}
+
+.ant-select-dropdown,
+.ant-dropdown {
+  z-index: 100;
+  padding: 5px;
+
+  border-radius: var(--radius-radius-md, 12px);
+  border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
+  background: var(--color-neutral-background-neutral, #131313);
+
+  /* system/shadow-md */
+  box-shadow:
+    0px 2px 11px -2px rgba(0, 0, 0, 0.09),
+    0px 4px 15px -1px rgba(0, 0, 0, 0.07);
+
+  & .ant-select-item,
+  & .ant-dropdown-menu-item {
+    color: var(--color-neutral-text-neutral-foreground, #fff);
+    min-height: 32px;
+    padding: 6px 8px;
+
+    border-radius: 8px;
+    background: var(--color-neutral-background-neutral, #131313);
+    /* bodyDefault/bodyDefaultRg */
+    font-family: "Geist Variable", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; /* 142.857% */
+
+    &.ant-select-item-option-disabled {
+      border-radius: var(--radius-radius-sm, 4px);
+      opacity: var(--state-transparent-fifty, 0.5);
+      background: var(--color-neutral-background-neutral, #131313);
+    }
+
+    &.ant-select-item-option-selected {
+      border-radius: 8px;
+      background: var(--color-muted-background-muted, #27272a);
+    }
+
+    &:hover {
+      border-radius: 8px;
+      background: var(--color-muted-background-muted, #27272a);
+    }
+  }
+}

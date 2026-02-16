@@ -1,0 +1,15 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  margin-left: 24px;
+}
+
+.sliderWrapper {
+  margin-top: 72px;
+}
+
+.slide {
+  width: fit-content;
+}
+

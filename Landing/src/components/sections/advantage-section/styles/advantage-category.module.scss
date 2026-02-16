@@ -1,0 +1,38 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+
+  @include media-up-lg {
+    gap: 40px;
+  }
+}
+
+.title {
+  color: var(--white-50p);
+  font-family: "Geist Mono", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 14px; /* 100% */
+  text-transform: uppercase;
+
+  span {
+    color: var(--white);
+  }
+}
+
+.advantages {
+  display: grid;
+  grid-template-columns: 1fr;
+  flex-wrap: wrap;
+  gap: 64px;
+
+  @include media-up-lg {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 80px;
+  }
+}
+

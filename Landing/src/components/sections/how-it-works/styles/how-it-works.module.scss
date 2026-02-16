@@ -1,0 +1,38 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding-top: 72px;
+
+  @include media-up-md {
+    gap: 64px;
+    padding-top: 164px;
+  }
+}
+
+.header {
+  padding: 0 16px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.connector {
+  max-width: 514px;
+  width: 100%;
+  height: 514px;
+  background-image: url("/how-it-works/connectio-bg.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  margin: -64px auto -164px;
+}

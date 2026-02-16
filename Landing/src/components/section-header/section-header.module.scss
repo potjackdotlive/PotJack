@@ -1,0 +1,34 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  max-width: 640px;
+  text-align: center;
+  
+  @include media-up-lg {
+    max-width: 724px;
+  }
+}
+
+.title {
+  @include h3-mobile;
+  @include gradient-title;
+
+  @include media-up-md {
+    @include h3-desktop;
+  }
+}
+
+.description {
+  color: var(--white-80p);
+  @include body-lg-mobile;
+
+  @include media-up-md {
+    @include body-lg-desktop;
+  }
+}
+

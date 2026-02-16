@@ -1,0 +1,198 @@
+html,
+body {
+  background-color: #131313;
+}
+
+body {
+  height: auto;
+  min-height: 100%;
+}
+
+#root {
+  padding: 0;
+  width: 100%;
+  min-height: 100dvh;
+  background-color: #131313;
+  background-image: url("/lights.png");
+  background-repeat: no-repeat;
+  background-position: top center;
+}
+
+.ant-app {
+  max-width: 1440px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 56px 48px 56px;
+  position: relative;
+  z-index: 10;
+  overflow-x: clip;
+}
+
+@media (max-width: 1200px) {
+  .ant-app {
+    padding: 0 24px 24px 24px;
+  }
+}
+
+@media (min-width: 360px) {
+  .ant-app {
+    padding: 0 16px 24px 16px;
+  }
+}
+
+.ant-tooltip .ant-tooltip-content .ant-tooltip-inner {
+  padding: 0;
+  background-color: transparent;
+}
+
+.echarts-for-react .tooltip-design {
+  padding: 12px 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  display: none;
+
+  /* override e-charts styles */
+  z-index: 1500 !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--color-neutral-border-neutral, #3f3f46) !important;
+  background: var(--color-neutral-background-neutral, #131313) !important;
+  box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.45) !important;
+
+  & .tooltip-key {
+    color: var(--color-muted-text-muted-foreground, #a1a1aa);
+    text-align: center;
+
+    /* bodyDefault/bodyDefaultRg */
+    font-family: "Geist Variable", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; /* 142.857% */
+  }
+
+  & .tooltip-value {
+    color: var(--color-neutral-text-neutral-foreground, #fff);
+    text-align: center;
+
+    /* bodyDefault/bodyDefaultMd */
+    font-family: "Geist Variable", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px; /* 142.857% */
+  }
+
+  & .tooltip-value-mono {
+    color: var(--color-neutral-text-neutral-foreground, #fff);
+    text-align: center;
+
+    /* monoDefaultMd */
+    font-family: "Geist Mono Variable", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px; /* 142.857% */
+  }
+}
+
+.ant-notification {
+  width: 100%;
+  min-width: 312px;
+  max-width: 400px;
+}
+
+/* 400px width and right-left padding */
+@media (max-width: 448px) {
+  .ant-notification {
+    width: calc(100vw - 48px);
+  }
+}
+
+.ant-notification .ant-notification-notice-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 16px 12px 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  border-radius: 12px;
+  border: 1px solid var(--scale-white-white-alpha-five, rgba(255, 255, 255, 0.05));
+  background: var(--scale-white-white-alpha-ten, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(10px);
+
+  & .ant-notification-notice-icon {
+    margin-top: 4px;
+  }
+
+  & .notification-success {
+    & .ant-notification-notice-icon {
+      background: var(--color-success-background-success-accent, #22c55e);
+    }
+  }
+
+  & .notification-warning {
+    & .ant-notification-notice-icon {
+      background: var(--amber-400, #fbbf24);
+    }
+  }
+
+  & .notification-error {
+    & .ant-notification-notice-icon {
+      background: var(--color-destructive-background-destructive-accent, #ef4444);
+    }
+  }
+
+  & .ant-notification-notice-actions {
+    float: none;
+  }
+
+  & .ant-notification-notice-with-icon .ant-notification-notice-message {
+    margin-inline-start: 16px;
+    padding: 2px 0;
+  }
+
+  & .ant-notification-notice-with-icon .ant-notification-notice-description {
+    margin-inline-start: 16px;
+    margin-bottom: 16px;
+  }
+
+  & a.ant-notification-notice-close {
+    &:hover {
+      color: var(--color-neutral-text-neutral-foreground, #fff);
+    }
+
+    color: var(--color-neutral-text-neutral-foreground, #fff);
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  && .ant-notification-notice-message,
+  && .ant-notification-notice-with-icon .ant-notification-notice-description {
+    color: var(--color-neutral-text-neutral-foreground, #fff);
+    /* bodyDefault/bodyDefaultMd */
+    font-family: "Geist Variable", sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px; /* 142.857% */
+  }
+
+  & .ant-notification-notice {
+    width: 100%;
+    max-width: initial;
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+.ant-btn-icon {
+  display: flex;
+}
+
+w3m-modal {
+  z-index: 10;
+}

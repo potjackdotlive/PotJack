@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+    <mask id="eth-token-mask" width="24" height="24" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance">
+        <path fill="#fff" d="M0 0h24v24H0V0Z"/>
+    </mask>
+    <g mask="url(#eth-token-mask)">
+        <path fill="#000" d="M24 0H0v24h24V0Z"/>
+        <path fill="#8FFCF3" d="M12 4v5.912l5 2.236L12 4Z"/>
+        <path fill="#CABCF8" d="m12 4-5 8.148 5-2.236V4Z"/>
+        <path fill="#CBA7F5" d="M12 15.98V20l5-6.92-5 2.9Z"/>
+        <path fill="#74A0F3" d="M12 20v-4.02l-5-2.9L12 20Z"/>
+        <path fill="#CBA7F5" d="m12 15.048 5-2.9-5-2.236v5.136Z"/>
+        <path fill="#74A0F3" d="m7 12.148 5 2.9V9.912l-5 2.236Z"/>
+        <path fill="#202699" fill-rule="evenodd" d="m12 15.048-5-2.9L12 4l5 8.148-5 2.9Zm-4.668-3.136 4.588-7.476v5.436l-4.588 2.04Zm-.068.204 4.656-2.068v4.768l-4.656-2.7Zm4.816-2.068v4.768l4.652-2.7-4.652-2.068Zm0-.176 4.588 2.04-4.588-7.476v5.436Z" clip-rule="evenodd"/>
+        <path fill="#202699" fill-rule="evenodd" d="m12 15.916-5-2.84L12 20l5-6.924-5 2.84Zm-4.44-2.34 4.36 2.48v3.56l-4.36-6.04Zm4.52 2.48v3.56l4.36-6.04-4.36 2.48Z" clip-rule="evenodd"/>
+    </g>
+</svg>

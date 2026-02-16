@@ -1,0 +1,12 @@
+services:
+  bclottery-landing:
+    container_name: bclottery-landing-${CI_ENVIRONMENT_NAME}
+    image: ${CONTAINER_IMAGE}
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    environment:
+      - NEXT_PUBLIC_LOTTERY_HOME_URL=${NEXT_PUBLIC_LOTTERY_HOME_URL}
+      - NEXT_PUBLIC_LOTTERY_PLAY_URL=${NEXT_PUBLIC_LOTTERY_PLAY_URL}
+      - NEXT_PUBLIC_LOTTERY_ROUND_HISTORY_URL=${NEXT_PUBLIC_LOTTERY_ROUND_HISTORY_URL}
+      - NEXT_PUBLIC_ON_CHAIN_URL=${NEXT_PUBLIC_ON_CHAIN_URL}

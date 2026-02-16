@@ -1,0 +1,30 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  color: var(--surface-80p);
+  @include body-md-mobile;
+
+  @include media-up-md {
+    @include body-md-desktop
+  }
+}
+
+.button {
+  padding: 12px 18px;
+
+  svg {
+    display: none;
+
+    @include media-up-md {
+      display: block;
+    }
+  }
+}

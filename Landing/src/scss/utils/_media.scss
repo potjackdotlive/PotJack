@@ -1,0 +1,51 @@
+@use './variables' as *;
+
+// Media-up mixins
+@mixin media-up-sm {
+  @media (min-width: $breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin media-up-md {
+  @media (min-width: $breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin media-up-lg {
+  @media (min-width: $breakpoint-lg) {
+    @content;
+  }
+}
+
+@mixin media-up-xl {
+  @media (min-width: $breakpoint-xl) {
+    @content;
+  }
+}
+
+// Media-down mixins
+@mixin media-down-sm {
+  @media (max-width: $breakpoint-sm - 1px) {
+    @content;
+  }
+}
+
+@mixin media-down-md {
+  @media (max-width: $breakpoint-md - 1px) {
+    @content;
+  }
+}
+
+@mixin media-down-lg {
+  @media (max-width: $breakpoint-lg - 1px) {
+    @content;
+  }
+}
+
+@mixin media-down-xl {
+  @media (max-width: $breakpoint-xl - 1px) {
+    @content;
+  }
+}

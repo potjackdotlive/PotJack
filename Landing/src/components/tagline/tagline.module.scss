@@ -1,0 +1,24 @@
+@use '@/scss/main' as *;
+
+.root {
+  padding: 8px 16px;
+  width: fit-content;
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  color: var(--surface-50p);
+  font-family: Geist Mono, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+
+  &::before {
+    @include mask;
+    z-index: -1;
+    inset: -2px;
+    padding: 2px;
+    background: conic-gradient(from 280deg, rgba(248, 248, 248, 0.05) 10%, rgba(255, 255, 255, 0.3) 40%, rgba(248, 248, 248, 0.05) 45%);
+  }
+}

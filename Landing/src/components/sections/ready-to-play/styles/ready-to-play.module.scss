@@ -1,0 +1,69 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin: 80px auto 0;
+  padding-top: 44px;
+  max-width: 778px;
+
+  @include media-up-md {
+    margin: 102px auto 0;
+    padding-top: 62px;
+  }
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+  padding: 0 16px;
+
+  @include media-up-md {
+    padding: 0 64px;
+  }
+
+  @include media-up-lg {
+    padding: 0;
+  }
+}
+
+.title {
+  opacity: .8;
+  @include h2-mobile;
+  @include gradient-title;
+
+  @include media-up-lg {
+    @include h2-desktop;
+  }
+}
+
+.description {
+  margin: 0 auto;
+  max-width: 626px;
+  color: var(--white-80p);
+  @include body-lg-mobile;
+
+  @include media-up-lg {
+    @include body-lg-desktop;
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 16px;
+}
+
+.communityBtn {
+  height: 72px;
+
+  @include media-up-md {
+    height: auto;
+  }
+}

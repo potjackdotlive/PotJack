@@ -1,0 +1,79 @@
+@use '@/scss/main' as *;
+
+.root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  color: var(--white);
+  font-family: Geist, sans-serif;
+  cursor: pointer;
+  transition: all .3s ease;
+
+  span {
+    padding: 0 2px;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.primary {
+  position: relative;
+  border: 2px solid transparent;
+  background-color: var(--primary-dark);
+
+  &:before {
+    @include mask;
+    z-index: 1;
+    inset: -2px;
+    padding: 2px;
+    box-shadow: 0 0 0 1px rgba(12, 14, 18, 0.18) inset, 0px -2px 0px 0px rgba(12, 14, 18, 0.05) inset, 0px 1px 2px 0px rgba(255, 255, 255, 0.00);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.00));
+  }
+
+
+  &:hover {
+    background: var(--primary-default)
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 1px rgba(12, 14, 18, 0.18) inset, 0px -2px 0px 0px rgba(12, 14, 18, 0.05) inset, 0px 1px 2px 0px rgba(255, 255, 255, 0.00), 0px 0px 0px 2px #14151A, 0px 0px 0px 4px #9E77ED;
+  }
+}
+
+.tertiary {
+  background-color: var(--white-16p);
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    background-color: var(--white-28p);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px #14151A, 0 0 0 4px #FFF;
+  }
+}
+
+.tertiaryXl {
+  padding: 12px !important;
+}
+
+.sizeSm {
+  padding: 8px 12px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.sizeXl {
+  padding: 12px 18px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}

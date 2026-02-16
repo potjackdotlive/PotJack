@@ -1,0 +1,58 @@
+:root {
+  --logo: linear-gradient(180deg, #a855f7 0, #bc09c9 100%);
+  --gradient-backgroundcard: linear-gradient(180deg, rgba(168, 85, 247, 0) 0, rgba(99, 50, 145, 0) 100%);
+  --shadow-tooltip: 0px 2px 20px 0px rgba(0, 0, 0, 0);
+  --system-backgroundblur: undefined;
+  --system-inputring: 0px 1px 2px 0px rgba(0, 0, 0, 0), 0px 0px 0px 1px #a1a1aa;
+  --system-focusring: 0px 0px 0px 4px #a1a1aa, 0px 0px 0px 2px #ffffff;
+  --system-shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0);
+  --system-shadow: 0px 1px 20px 0px rgba(0, 0, 0, 0), 0px 1px 2px -1px rgba(0, 0, 0, 0);
+  --system-shadow-md: 0px 4px 15px -1px rgba(0, 0, 0, 0), 0px 2px 11px -2px rgba(0, 0, 0, 0);
+  --system-shadow-lg: 0px 10px 15px -3px rgba(0, 0, 0, 0), 0px 4px 6px -4px rgba(0, 0, 0, 0);
+  --leaderboard-leaderboard-circle-top-1: inset 0px 2px 20px 2px rgba(179, 0, 0, 0);
+  --leaderboard-leaderboard-circle-top-2: inset 0px 2px 20px 2px rgba(179, 0, 134, 0);
+  --leaderboard-leaderboard-circle-top-3: inset 0px 2px 20px 2px rgba(0, 116, 179, 0);
+  --leaderboard-leaderboard-circle-top-4: inset 0px 2px 20px 2px rgba(179, 105, 0, 0);
+  --leaderboard-leaderboard-circle-top-5: inset 0px 2px 20px 2px rgba(255, 255, 255, 0);
+  --leaderboard-leaderboard-item-top5: inset 0px 1px 16px 0px rgba(255, 255, 255, 0);
+  --button-brand-default:
+    0px 4px 31px -1px rgba(233, 105, 255, 0), 0px 2px 16px -2px rgba(233, 130, 254, 0),
+    inset 0px 2px 16px 0px rgba(255, 255, 255, 0);
+  --button-brand-hover:
+    0px 4px 31px -1px rgba(233, 105, 255, 0), 0px 4px 31px -1px rgba(233, 105, 255, 0),
+    0px 2px 16px -2px rgba(233, 130, 254, 0), inset 0px 2px 16px 0px rgba(255, 255, 255, 1);
+  --button-destructive-default:
+    0px 4px 31px -1px rgba(220, 38, 38, 0), 0px 2px 16px -2px rgba(220, 38, 38, 0),
+    inset 0px 2px 16px 0px rgba(255, 255, 255, 0);
+  --button-destructive-hover:
+    0px 4px 31px -1px rgba(220, 38, 38, 0), 0px 4px 31px -1px rgba(220, 38, 38, 0),
+    0px 2px 16px -2px rgba(220, 38, 38, 0), inset 0px 2px 16px 0px rgba(255, 255, 255, 1);
+  --monosmallmd: 12px;
+  --pricehero: 60px;
+  --pricepie6-ne-znau: 32px;
+  --pricepie6nr: 26px;
+  --pricepie7nr: 24px;
+  --monodefaultmd: 14px;
+  --heading-h1: 30px;
+  --heading-h2: 24px;
+  --heading-h3: 20px;
+  --heading-h4---h5-h6: 18px;
+  --bodylarge-bodylargerg: 16px;
+  --bodylarge-bodylargemd: 16px;
+  --bodylarge-bodylargesb: 16px;
+  --bodylarge-bodylargetidy: 16px;
+  --bodydefault-bodydefaultrg: 14px;
+  --bodydefault-bodydefaultmd: 14px;
+  --bodydefault-bodydefaultsb: 14px;
+  --bodydefault-bodydefaulttidy: 14px;
+  --bodysmall-bodysmallmd: 12px;
+  --bodysmall-bodysmallsb: 12px;
+  --bodysmall-bodysmalltidy: 12px;
+  --table-tablecelldefault: 14px;
+  --table-tableheaderdefault: 14px;
+  --table-tablecellsecondary: 14px;
+  --table-tableheadersecondary: 14px;
+  --radius-radius-md: 12px;
+  --radius-radius-lg: 16px;
+  --radius-radius-sm: 4px;
+}
