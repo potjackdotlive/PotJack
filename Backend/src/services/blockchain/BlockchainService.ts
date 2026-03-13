@@ -1,4 +1,4 @@
-import {Connection, Keypair, PublicKey, Transaction, TransactionInstruction} from '@solana/web3.js';
+import {Connection, Keypair, PublicKey} from '@solana/web3.js';
 import {
   BigNumberish,
   ContractEventPayload,
@@ -59,6 +59,7 @@ interface BlockchainConfig {
   rpcUrl: string;
   chainId: number;
   contractAddresses: string[];
+  confirmationBlocks?: number;
   extra?: Record<string, any>;
 }
 
@@ -78,6 +79,9 @@ export class BlockchainService {
   private solanaProgramId: Record<string, PublicKey> = {};
   private solanaIdl: Record<string, Idl> = {};
   private solanaAuthorityKeypair?: Keypair;
+  private healthCheckRunning: Record<string, boolean> = {};
+  private reconnectRunning: Record<string, boolean> = {};
+  private syncRunning: Record<string, boolean> = {};
 
   // Repository properties
   private userRepository: Repository<User>;
@@ -109,173 +113,6 @@ export class BlockchainService {
     return new Promise<void>(resolve => setTimeout(resolve, ms));
   }
 
-  // Check if WebSocket connection is alive
-  private async checkConnectionHealth(blockchainName: string): Promise<boolean> {
-    logger.debug(`[${blockchainName}] [HEALTH_CHECK] Starting health check...`);
-
-    try {
-      const provider = this.providers[blockchainName];
-      if (!provider) {
-        logger.warn(`[${blockchainName}] [HEALTH_CHECK] ❌ No provider found`);
-        return false;
-      }
-
-      logger.debug(`[${blockchainName}] [HEALTH_CHECK] Provider type: ${provider.constructor.name}`);
-
-      // For WebSocket providers, try to get the latest block number
-      if (provider instanceof ethers.WebSocketProvider) {
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] Fetching latest block number from WebSocket provider...`);
-
-        const blockNumber = await provider.getBlockNumber();
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Latest block: ${blockNumber}`);
-
-        // Check if we're receiving events by checking the last synced block
-        const config = this.configs[blockchainName];
-        if (config && config.contractAddresses.length > 0) {
-          logger.debug(`[${blockchainName}] [HEALTH_CHECK] Checking sync status for ${config.contractAddresses.length} contract(s)...`);
-
-          const contractAddress = config.contractAddresses[0];
-          logger.debug(`[${blockchainName}] [HEALTH_CHECK] Checking contract: ${contractAddress}`);
-
-          const lastSyncedBlock = await this.getLastSyncedBlock(blockchainName, contractAddress);
-          logger.debug(`[${blockchainName}] [HEALTH_CHECK] Last synced block: ${lastSyncedBlock}`);
-
-          if (lastSyncedBlock !== null) {
-            const blocksBehind = blockNumber - lastSyncedBlock;
-            logger.debug(`[${blockchainName}] [HEALTH_CHECK] Blocks behind: ${blocksBehind} (threshold: ${this.syncThresholdBlocks})`);
-
-            // If we're more than threshold blocks behind, trigger synchronization
-            if (blocksBehind > this.syncThresholdBlocks) {
-              logger.warn(`[${blockchainName}] [HEALTH_CHECK] ⚠️ SYNC NEEDED: ${blocksBehind} blocks behind (last synced: ${lastSyncedBlock}, current: ${blockNumber})`);
-              logger.info(`[${blockchainName}] [HEALTH_CHECK] 🔄 Triggering synchronization for contract ${contractAddress}`);
-
-              // Trigger synchronization for this contract
-              const contracts = this.contracts[blockchainName];
-              if (contracts) {
-                logger.debug(`[${blockchainName}] [HEALTH_CHECK] Found ${contracts.length} contract instance(s)`);
-                const contract = contracts.find(c => c.target === contractAddress);
-
-                if (contract) {
-                  logger.info(`[${blockchainName}] [HEALTH_CHECK] Contract instance found, starting fetchHistoricalEvents...`);
-                  logger.debug(`[${blockchainName}] [HEALTH_CHECK] From block: ${Number(lastSyncedBlock) + 1}, To block: ${blockNumber}`);
-
-                  const result = await this.fetchHistoricalEvents(blockchainName, contract, Number(lastSyncedBlock) + 1, blockNumber);
-
-                  logger.debug(`[${blockchainName}] [HEALTH_CHECK] Sync result: ${result ? 'SUCCESS' : 'FAILED'}`);
-                  return result;
-                } else {
-                  logger.error(`[${blockchainName}] [HEALTH_CHECK] ❌ Contract ${contractAddress} not found in contracts array`);
-                }
-              } else {
-                logger.error(`[${blockchainName}] [HEALTH_CHECK] ❌ No contracts array found`);
-              }
-
-              return false;
-            } else {
-              logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Sync is up to date (${blocksBehind} blocks behind threshold)`);
-            }
-          } else {
-            logger.warn(`[${blockchainName}] [HEALTH_CHECK] ⚠️ No last synced block found (first run?)`);
-          }
-        } else {
-          logger.debug(`[${blockchainName}] [HEALTH_CHECK] No contracts configured or empty contract addresses array`);
-        }
-
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Health check PASSED`);
-        return true;
-      }
-
-      // ========== SOLANA HEALTH CHECK ==========
-      if (provider instanceof Connection) {
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] Running Solana-specific health check...`);
-        return await this.checkSolanaConnectionHealth(blockchainName, provider);
-      }
-
-      // For other providers (HTTP, Solana), also check connectivity
-      if (provider instanceof ethers.JsonRpcProvider) {
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] Fetching latest block number from JsonRpc provider...`);
-        const blockNumber = await provider.getBlockNumber();
-        logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Latest block: ${blockNumber}`);
-        return true;
-      }
-
-      logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Unknown provider type, assuming healthy`);
-      return true;
-    } catch (error) {
-      logger.error(`[${blockchainName}] [HEALTH_CHECK] ❌ Health check FAILED with error:`, error);
-      return false;
-    }
-  }
-
-  private async checkSolanaConnectionHealth(
-    blockchainName: string,
-    connection: Connection
-  ): Promise<boolean> {
-    try {
-      logger.debug(`[${blockchainName}] [SOLANA_HEALTH] Starting Solana health check...`);
-
-      const currentBlock = await connection.getSlot('confirmed');
-      logger.debug(`[${blockchainName}] [SOLANA_HEALTH] Current block/slot: ${currentBlock}`);
-
-      const config = this.configs[blockchainName];
-      if (config?.extra?.programId) {
-        const programId = this.solanaProgramId[blockchainName];
-        logger.debug(`[${blockchainName}] [SOLANA_HEALTH] Program ID: ${programId.toBase58()}`);
-
-        const lastSyncedBlock = await this.getLastSyncedBlock(
-          blockchainName,
-          programId.toBase58()
-        );
-        logger.debug(`[${blockchainName}] [SOLANA_HEALTH] Last synced block: ${lastSyncedBlock}`);
-
-        if (lastSyncedBlock !== null) {
-          const blocksBehind = currentBlock - lastSyncedBlock;
-          const solanaThreshold = this.syncThresholdBlocks * 10;
-
-          logger.debug(
-            `[${blockchainName}] [SOLANA_HEALTH] Blocks behind: ${blocksBehind} ` +
-            `(last synced: ${lastSyncedBlock}, current: ${currentBlock}, threshold: ${solanaThreshold})`
-          );
-
-          // If we are behind by more than threshold slots - trigger synchronization
-          if (blocksBehind > solanaThreshold) {
-            logger.warn(
-              `[${blockchainName}] [SOLANA_HEALTH] ⚠️ SYNC NEEDED: ${blocksBehind} blocks behind threshold (${solanaThreshold})`
-            );
-
-            logger.info(`[${blockchainName}] [SOLANA_HEALTH] 🔄 Triggering Solana synchronization`);
-            logger.info(`[${blockchainName}] [SOLANA_HEALTH] Using fetchSolanaTransactions from checkSolanaConnectionHealth`);
-            logger.info(`[${blockchainName}] [SOLANA_HEALTH] isHistorical: false`);
-
-            await this.fetchSolanaTransactions(
-              blockchainName,
-              programId,
-              lastSyncedBlock + 1,
-              currentBlock,
-              false
-            ).catch((error: any) => {
-              logger.error(`[${blockchainName}] [SOLANA_HEALTH] ❌ Failed to sync Solana events:`, error);
-              return false;
-            });
-          } else {
-            logger.debug(`[${blockchainName}] [SOLANA_HEALTH] ✅ Sync is up to date`);
-          }
-        } else {
-          logger.warn(`[${blockchainName}] [SOLANA_HEALTH] ⚠️ No last synced block found`);
-        }
-      } else {
-        logger.debug(`[${blockchainName}] [SOLANA_HEALTH] No program ID configured in extra config`);
-      }
-
-      logger.debug(`[${blockchainName}] [SOLANA_HEALTH] ✅ Connection is healthy`);
-      return true;
-
-    } catch (error) {
-      logger.error(`[${blockchainName}] [SOLANA_HEALTH] ❌ Health check FAILED:`, error);
-      return false;
-    }
-  }
-
   // Start health check for a blockchain
   private startHealthCheck(blockchainName: string): void {
     logger.debug(`[${blockchainName}] [HEALTH_TIMER] Setting up health check timer (interval: ${this.healthCheckInterval}ms)...`);
@@ -287,21 +124,185 @@ export class BlockchainService {
     }
 
     this.healthCheckTimers[blockchainName] = setInterval(async () => {
-      logger.debug(`[${blockchainName}] [HEALTH_TIMER] ⏰ Health check timer triggered`);
-      const isHealthy = await this.checkConnectionHealth(blockchainName);
-      this.connectionStates[blockchainName] = isHealthy;
 
-      if (!isHealthy) {
-        logger.warn(`[${blockchainName}] [HEALTH_TIMER] ⚠️ Connection unhealthy, attempting reconnection...`);
-        await this.reconnectBlockchain(blockchainName);
-      } else {
-        logger.debug(`[${blockchainName}] [HEALTH_TIMER] ✅ Connection healthy, resetting reconnect attempts`);
-        // Reset reconnect attempts on successful health check
-        this.reconnectAttempts[blockchainName] = 0;
+      if (this.healthCheckRunning[blockchainName]) {
+        logger.debug(`[${blockchainName}] [HEALTH_TIMER] Skipping — previous check still running`);
+        return;
       }
+
+      this.healthCheckRunning[blockchainName] = true;
+
+      try {
+        let isConnected = false;
+        try {
+          isConnected = await this.withTimeout(
+            this.checkRpcConnectivity(blockchainName),
+            5000
+          );
+        } catch (err) {
+          logger.warn(`[${blockchainName}] [HEALTH_CHECK] RPC check failed or timed out:`, err);
+        }
+
+        this.connectionStates[blockchainName] = isConnected;
+
+        if (!isConnected) {
+          logger.warn(`[${blockchainName}] ⚠️ RPC not responsive, triggering reconnect`);
+
+          if (!this.reconnectRunning[blockchainName]) {
+            this.reconnectRunning[blockchainName] = true;
+            this.reconnectBlockchain(blockchainName)
+              .catch(err => logger.error(`[${blockchainName}] Reconnect failed`, err))
+              .finally(() => { this.reconnectRunning[blockchainName] = false; });
+          } else {
+            logger.debug(`[${blockchainName}] Reconnect already running, skipping`);
+          }
+
+          return;
+        }
+
+        this.reconnectAttempts[blockchainName] = 0;
+        logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ RPC is responsive`);
+
+        if (this.syncRunning[blockchainName]) {
+          logger.debug(`[${blockchainName}] [HEALTH_TIMER] Skipping — previous sync still running`);
+          return;
+        }
+
+        logger.debug(`[${blockchainName}] [HEALTH_TIMER] 🔄 Triggering block sync check...`);
+        this.syncRunning[blockchainName] = true;
+        this.checkAndSyncBlocks(blockchainName)
+          .catch(err => logger.error(`[${blockchainName}] [HEALTH_TIMER] Sync error`, err))
+          .finally(() => { this.syncRunning[blockchainName] = false; });
+
+      } catch (err) {
+        logger.error(`[${blockchainName}] Health check crashed`, err);
+      } finally {
+        this.healthCheckRunning[blockchainName] = false;
+      }
+
     }, this.healthCheckInterval);
 
-    logger.info(`[${blockchainName}] [HEALTH_TIMER] ✅ Health check timer started successfully`);
+    logger.info(`[${blockchainName}] ✅ Health check timer started`);
+  }
+
+  private withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), ms)
+      ),
+    ]);
+  }
+
+  private async checkRpcConnectivity(blockchainName: string): Promise<boolean> {
+    logger.debug(`[${blockchainName}] [HEALTH_CHECK] Starting check connectivity...`);
+
+    const provider = this.providers[blockchainName];
+    if (!provider) {
+      logger.warn(`[${blockchainName}] [HEALTH_CHECK] No provider found`);
+      return false;
+    }
+    logger.debug(`[${blockchainName}] [HEALTH_CHECK] Provider type: ${provider.constructor.name}`);
+
+    try {
+      if (provider instanceof ethers.WebSocketProvider) {
+        const blockNumber = await provider.getBlockNumber();
+        logger.debug(`[${blockchainName}] [HEALTH_CHECK] EVM RPC responsive, block: ${blockNumber}`);
+      } else if (provider instanceof Connection) {
+        const slotNumber = await provider.getSlot('confirmed');
+        logger.debug(`[${blockchainName}] [HEALTH_CHECK] ✅ Solana RPC responsive, slot: ${slotNumber}`);
+      }
+      return true;
+    } catch (error) {
+      logger.error(`[${blockchainName}] [HEALTH_CHECK] ❌ RPC not responsive:`, error);
+      return false;
+    }
+  }
+
+  private async checkAndSyncBlocks(blockchainName: string): Promise<void> {
+    const provider = this.providers[blockchainName];
+    const config = this.configs[blockchainName];
+
+    if (!provider || !config?.contractAddresses?.length) return;
+
+    try {
+      // ========== EVM ==========
+      if (provider instanceof ethers.WebSocketProvider) {
+        const currentBlock = await provider.getBlockNumber();
+        const confirmationBlocks = config.confirmationBlocks ?? 0; // default = 0
+        const safeCurrentBlock = currentBlock - confirmationBlocks;
+
+        const contractAddress = config.contractAddresses[0];
+        const lastSyncedBlock = await this.getLastSyncedBlock(blockchainName, contractAddress);
+
+        if (lastSyncedBlock === null) return;
+
+        const blocksBehind = currentBlock - lastSyncedBlock;
+        const evmThreshold = this.syncThresholdBlocks * 10;
+
+        logger.debug(
+          `[${blockchainName}] [SYNC_CHECK] EVM blocks behind: ${blocksBehind} ` +
+          `(last synced: ${lastSyncedBlock}, current: ${currentBlock}, threshold: ${evmThreshold})`
+        );
+
+        if (blocksBehind > evmThreshold) {
+          logger.warn(`[${blockchainName}] [SYNC_CHECK] ⚠️ Triggering EVM sync (${blocksBehind} blocks behind)`);
+
+          const contracts = this.contracts[blockchainName];
+          const contract = contracts?.find(c => c.target === contractAddress);
+
+          if (!contract) {
+            logger.error(`[${blockchainName}] [SYNC_CHECK] Contract ${contractAddress} not found`);
+            return;
+          }
+
+          const result = await this.fetchHistoricalEvents(blockchainName, contract, Number(lastSyncedBlock) + 1, safeCurrentBlock);
+
+          logger.debug(`[${blockchainName}] [SYNC_CHECK] EVM sync result: ${result ? 'SUCCESS' : 'FAILED'}`);
+        }
+      }
+
+      // ========== SOLANA ==========
+      if (provider instanceof Connection) {
+        const programId = this.solanaProgramId[blockchainName];
+        if (!programId) return;
+
+        const currentBlock = await provider.getSlot('confirmed');
+        const lastSyncedBlock = await this.getLastSyncedBlock(blockchainName, programId.toBase58());
+
+        if (lastSyncedBlock === null) return;
+
+        const blocksBehind = currentBlock - lastSyncedBlock;
+        const solanaThreshold = this.syncThresholdBlocks * 10;
+
+        logger.debug(
+          `[${blockchainName}] [SYNC_CHECK] Solana blocks behind: ${blocksBehind} ` +
+          `(last synced: ${lastSyncedBlock}, current: ${currentBlock}, threshold: ${solanaThreshold})`
+        );
+
+        if (blocksBehind > solanaThreshold) {
+          logger.warn(`[${blockchainName}] [SYNC_CHECK] ⚠️ Triggering Solana sync (${blocksBehind} slots behind)`);
+          const result = await this.fetchSolanaTransactions(
+            blockchainName,
+            programId,
+            lastSyncedBlock + 1,
+            currentBlock,
+            false
+          ).catch((error: any) => {
+            logger.error(`[${blockchainName}] [SYNC_CHECK] ❌ Failed to sync Solana events:`, error);
+            return false;
+          });
+
+          logger.debug(`[${blockchainName}] [SYNC_CHECK] Solana sync result: ${result ? 'SUCCESS' : 'FAILED'}`);
+        }
+
+        return;
+      }
+
+    } catch (error) {
+      logger.error(`[${blockchainName}] [SYNC_CHECK] Error during block sync check:`, error);
+      throw error;
+    }
   }
 
   // Reconnect to a blockchain
@@ -1129,7 +1130,8 @@ export class BlockchainService {
             block,
             blockchainName,
             instructionIndex,
-            events
+            events,
+            isHistorical
           );
           break;
 
@@ -1373,7 +1375,8 @@ export class BlockchainService {
     block: number,
     blockchainName: string,
     instructionIndex: number,
-    events: any[]
+    events: any[],
+    isHistorical: boolean
   ) {
     try {
       const winnerPickedEvent = events.find(e => e.name === 'WinnerPicked');
@@ -1389,6 +1392,22 @@ export class BlockchainService {
       const programId = this.solanaProgramId[blockchainName];
       const contractAddress = programId.toBase58();
       const eventTimestamp = new Date(timestamp.toNumber() * 1000);
+
+      const existingWinEvent = await this.winEventRepository.findOne({
+        where: {
+          token: tokenAddress,
+          roundId: round_id,
+          contractAddress,
+          chainId,
+        },
+      });
+
+      if (existingWinEvent) {
+        logger.info(
+          `[${blockchainName}] WinnerPicked for round ${round_id} already processed (tx: ${existingWinEvent.transactionHash}), skipping duplicate consume_randomness`
+        );
+        return;
+      }
 
       const connection = this.providers[blockchainName] as Connection;
       logger.debug(`Round PDA: ${round.toBase58()}, Round ID: ${round_id}`);
@@ -1465,41 +1484,41 @@ export class BlockchainService {
 
       await this.notificationService.createWinNotifications(winEvent);
 
-      logger.info(
-        `[${blockchainName}] Attempting to set winner address on-chain`
-      );
+      if (!isHistorical) {
+        logger.info(`[${blockchainName}] Attempting to set winner address on-chain`);
 
-      try {
-        const envSecretKey = process.env.SOLANA_PAYER_SECRET_KEY;
-        if (!envSecretKey) {
-          throw new Error('SOLANA_PAYER_SECRET_KEY not found in environment variables');
-        }
-
-        let secretKeyArray: number[];
         try {
-          secretKeyArray = JSON.parse(envSecretKey);
-          logger.info('Loaded payer keypair from environment variable');
-        } catch (err) {
-          throw new Error('Invalid SOLANA_PAYER_SECRET_KEY format in .env. Expected JSON array of numbers');
+          const envSecretKey = process.env.SOLANA_PAYER_SECRET_KEY;
+          if (!envSecretKey) {
+            throw new Error('SOLANA_PAYER_SECRET_KEY not found in environment variables');
+          }
+
+          let secretKeyArray: number[];
+          try {
+            secretKeyArray = JSON.parse(envSecretKey);
+            logger.info('Loaded payer keypair from environment variable');
+          } catch (err) {
+            throw new Error('Invalid SOLANA_PAYER_SECRET_KEY format in .env. Expected JSON array of numbers');
+          }
+
+          this.solanaAuthorityKeypair = Keypair.fromSecretKey(Uint8Array.from(secretKeyArray));
+
+          const setWinnerSignature = await this.setWinnerAddress(
+            blockchainName,
+            round_id,
+            winner_purchase_index,
+            this.solanaAuthorityKeypair
+          );
+
+          logger.info(
+            `[${blockchainName}] ✅ Winner address set on-chain successfully! Transaction: ${setWinnerSignature}`
+          );
+        } catch (error: any) {
+          logger.error(
+            `[${blockchainName}] ❌ Failed to set winner address:`,
+            error
+          );
         }
-
-        this.solanaAuthorityKeypair = Keypair.fromSecretKey(Uint8Array.from(secretKeyArray));
-
-        const setWinnerSignature = await this.setWinnerAddress(
-          blockchainName,
-          round_id,
-          winner_purchase_index,
-          this.solanaAuthorityKeypair
-        );
-
-        logger.info(
-          `[${blockchainName}] ✅ Winner address set on-chain successfully! Transaction: ${setWinnerSignature}`
-        );
-      } catch (error: any) {
-        logger.error(
-          `[${blockchainName}] ❌ Failed to set winner address:`,
-          error
-        );
       }
 
       await this.updateLastSyncedBlock(blockchainName, contractAddress, block);
@@ -1942,6 +1961,8 @@ export class BlockchainService {
 
     // Get current block number
     const currentBlock = await provider.getBlockNumber();
+    const confirmationBlocks = config.confirmationBlocks ?? 0;
+    const safeCurrentBlock = currentBlock - confirmationBlocks;
 
     for (const contract of contracts) {
       const contractAddress = contract.target.toString();
@@ -1962,9 +1983,9 @@ export class BlockchainService {
         const fromBlock = await this.getDeploymentBlock(provider, contractAddress);
         logger.info(`Contract ${contractAddress} was deployed at block ${fromBlock}`);
 
-        await this.fetchHistoricalEvents(name, contract, fromBlock, currentBlock);
+        await this.fetchHistoricalEvents(name, contract, fromBlock, safeCurrentBlock);
       } else if (lastSyncedBlock < currentBlock) {
-        await this.fetchHistoricalEvents(name, contract, lastSyncedBlock + 1, currentBlock);
+        await this.fetchHistoricalEvents(name, contract, lastSyncedBlock + 1, safeCurrentBlock);
       }
     }
   }

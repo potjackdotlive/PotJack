@@ -3,6 +3,7 @@ export interface ChainConfig {
   rpcUrl: string;
   chainId: number;
   contractAddresses: string[];
+  confirmationBlocks?: number;
   extra?: Record<string, any>;
 }
 

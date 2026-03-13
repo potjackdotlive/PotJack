@@ -26,21 +26,19 @@ use std::cell::RefMut;
 declare_id!("Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85");
 
 pub mod admin;
+pub mod price_feeds;
 pub mod vrf;
 
 use admin::*;
+use price_feeds::*;
 use vrf::*;
 
 // Constants
-const LAMPORTS_PER_SOL: u64 = 1_000_000_000u64;
-const TICKET_BTC_STR: &str = "0.00005";
 const CLIENT_STATE_SEED: &[u8] = b"CLIENT_STATE";
-pub const TICKET_BTC_SATOSHIS: u64 = 5_000; // 0.00005 BTC = 5,000 satoshi
-const BTC_DECIMALS: u8 = 8;
-const USD_DECIMALS: u8 = 6;
 const SECONDS_IN_DAY: i64 = 86400;
 const NY_OFFSET: i64 = 4 * 3600; // UTC-4
 const ROUND_DURATION: i64 = 600; // 10 minutes
+const MAX_TICKETS: usize = 2048; // 1024 + 1024
 
 #[program]
 pub mod raffle {
@@ -78,28 +76,6 @@ pub mod raffle {
         admin::get_raffle_round_count(ctx)
     }
 
-    //TEST
-    pub fn get_cumulative_tickets(
-        ctx: Context<GetCumulativeTickets>,
-        round_id: u32,
-    ) -> Result<Vec<u32>> {
-        let round = &ctx.accounts.round;
-
-        require!(round.initialized, RaffleError::RoundNotCreated);
-        require!(round.round_id == round_id, RaffleError::RoundNotCreated);
-
-        let round_tickets = ctx.accounts.round_tickets.load()?;
-
-        msg!(
-            "📖 Reading cumulative_tickets for round {} (len={})",
-            round_id,
-            round_tickets.len
-        );
-
-        Ok(round_tickets.get_tickets().to_vec())
-    }
-    //TEST
-
     pub fn initialize_raffle(
         ctx: Context<InitializeRaffle>,
         entrance_fee_percentage: u8,
@@ -113,7 +89,6 @@ pub mod raffle {
         raffle_state.created_at = Clock::get()?.unix_timestamp;
         raffle_state.vrf_request_counter = 0;
         raffle_state.bump = ctx.bumps.raffle_state;
-        raffle_state.test_ticket_price = None;
 
         msg!("RaffleState initialized successfully");
         msg!("Raffle State PDA: {}", raffle_state.key());
@@ -163,7 +138,7 @@ pub mod raffle {
         Ok(())
     }
 
-    /// Only authority
+    // Only authority
     pub fn withdraw_vrf_vault(
         ctx: Context<WithdrawVrfVault>,
         amount: u64,
@@ -210,7 +185,7 @@ pub mod raffle {
         Ok(())
     }
 
-    /// Only authority
+    // Only authority
     pub fn withdraw_rent_vault(
         ctx: Context<WithdrawRentVault>,
         amount: u64,
@@ -232,477 +207,338 @@ pub mod raffle {
         Ok(())
     }
 
-//TEST
-pub fn initialize_round(
-    ctx: Context<InitializeRound>,
-    round_id: u32,
-) -> Result<()> {
-    let clock = Clock::get()?;
-    let rent = Rent::get()?;
-    let current_time = clock.unix_timestamp;
-    let round_end_time = get_temporary_close_time(current_time);
+    pub fn buy_tickets_sol(
+        ctx: Context<BuyTicketsSol>,
+        round_id: u32,
+        purchase_index: u32,
+        count: u32,
+        max_cost: u64,
+    ) -> Result<()> {
+        msg!("Tickets count: {}", count);
+        require!(count > 0, RaffleError::InvalidTicketCount);
 
-    let sol_raffle = &mut ctx.accounts.sol_raffle;
-    let sol_raffle_key = sol_raffle.key();
-    
-    // Bumps
-    let vault_bump = ctx.bumps.rent_vault;
-    let round_bump = ctx.bumps.round;
-    let round_tickets_bump = ctx.bumps.round_tickets;
-    
-    let vault_seeds = &[b"rent_vault".as_ref(), &[vault_bump]];
-    
-    // ========== 1. Create Round account ==========
-    let round_seeds = &[
-        b"round".as_ref(),
-        sol_raffle_key.as_ref(),
-        &round_id.to_le_bytes(),
-        &[round_bump],
-    ];
-    let round_space = 8 + Round::INIT_SPACE;
-    let round_lamports = rent.minimum_balance(round_space);
-
-    invoke_signed(
-        &system_instruction::create_account(
-            &ctx.accounts.rent_vault.key(),
-            &ctx.accounts.round.key(),
-            round_lamports,
-            round_space as u64,
-            ctx.program_id,
-        ),
-        &[
-            ctx.accounts.rent_vault.to_account_info(),
-            ctx.accounts.round.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-        &[vault_seeds, round_seeds],
-    )?;
-    
-    // Initialize Round
-    {
-        let mut round_account_data = ctx.accounts.round.try_borrow_mut_data()?;
+        let clock = Clock::get()?;
+        let current_time = clock.unix_timestamp;
+        let sol_raffle = &mut ctx.accounts.sol_raffle;
         
-        let round_data = Round {
-            initialized: true,
-            token_raffle: sol_raffle_key,
-            round_id,
-            status: RoundStatus::Open,
-            start_time: current_time,
-            end_time: round_end_time,
-            prize_amount: 0,
-            commission_balance: 0,
-            purchases_count: 0,
-            total_tickets: 0,
-            winner_ticket_index: None,
-            winner_purchase_index: None,
-            winner_address: None,
-            prize_claimed: false,
-            bump: round_bump,
-        };
+        let round_exists = ctx.accounts.round.owner == ctx.program_id 
+            && ctx.accounts.round.data_len() > 0;
         
-        let mut writer = &mut round_account_data[..];
-        round_data.try_serialize(&mut writer)?;
-    }
-
-    // ========== 2. Create RoundTickets account ==========
-    let round_key = ctx.accounts.round.key();
-    let round_tickets_seeds = &[
-        b"round_tickets".as_ref(),
-        round_key.as_ref(),
-        &[round_tickets_bump],
-    ];
-    let tickets_space = 8 + std::mem::size_of::<RoundTickets>();
-    let tickets_lamports = rent.minimum_balance(tickets_space);
-    
-    invoke_signed(
-        &system_instruction::create_account(
-            &ctx.accounts.rent_vault.key(),
-            &ctx.accounts.round_tickets.key(),
-            tickets_lamports,
-            tickets_space as u64,
-            ctx.program_id,
-        ),
-        &[
-            ctx.accounts.rent_vault.to_account_info(),
-            ctx.accounts.round_tickets.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-        &[vault_seeds, round_tickets_seeds],
-    )?;
-
-    // Initialize RoundTickets
-    {
-        let mut tickets_data = ctx.accounts.round_tickets.try_borrow_mut_data()?;
-        let discriminator = RoundTickets::DISCRIMINATOR;
-        tickets_data[0..8].copy_from_slice(&discriminator);
-        
-        for byte in &mut tickets_data[8..] {
-            *byte = 0;
-        }
-        
-        tickets_data[8..40].copy_from_slice(round_key.as_ref());
-        
-        let bump_offset = 8 + 32 + (1024 * 4) + (1024 * 4) + 4;
-        tickets_data[bump_offset] = round_tickets_bump;
-    }
-
-    msg!(
-        "✅ Round {} and RoundTickets created (paid {} lamports total)", 
-        round_id, 
-        round_lamports + tickets_lamports
-    );
-
-    if let Some(prev_id) = sol_raffle.current_round_id {
-        let prev_round_end = sol_raffle.current_round_end_time.unwrap();
-
-        if current_time >= prev_round_end {
+        if !round_exists {
+            msg!("🆕 Round {} doesn't exist, creating...", round_id);
             
-            if sol_raffle.current_round_status == RoundStatus::Open {
-                if !sol_raffle.pending_rounds.contains(&prev_id) {
-                    sol_raffle.pending_rounds.push(prev_id);
-                    msg!("✅ Added round {} to pending (status: Open)", prev_id);
+            require!(
+                purchase_index == 0,
+                RaffleError::InvalidPurchaseIndex
+            );
+
+            let rent = Rent::get()?;
+            let sol_raffle_key = sol_raffle.key();
+            
+            let vault_bump = ctx.bumps.rent_vault;
+            let round_bump = ctx.bumps.round;
+            let round_tickets_bump = ctx.bumps.round_tickets;
+            
+            let vault_seeds = &[b"rent_vault".as_ref(), &[vault_bump]];
+            
+            // ========== Create Round account ==========
+            let round_seeds = &[
+                b"round".as_ref(),
+                sol_raffle_key.as_ref(),
+                &round_id.to_le_bytes(),
+                &[round_bump],
+            ];
+            let round_space = 8 + Round::INIT_SPACE;
+            let round_lamports = rent.minimum_balance(round_space);
+
+            invoke_signed(
+                &system_instruction::create_account(
+                    &ctx.accounts.rent_vault.key(),
+                    &ctx.accounts.round.key(),
+                    round_lamports,
+                    round_space as u64,
+                    ctx.program_id,
+                ),
+                &[
+                    ctx.accounts.rent_vault.to_account_info(),
+                    ctx.accounts.round.to_account_info(),
+                    ctx.accounts.system_program.to_account_info(),
+                ],
+                &[vault_seeds, round_seeds],
+            )?;
+            
+            // Initialize Round
+            {
+                let round_end_time = get_temporary_close_time(current_time);
+                let mut round_account_data = ctx.accounts.round.try_borrow_mut_data()?;
+                
+                let round_data = Round {
+                    initialized: true,
+                    token_raffle: sol_raffle_key,
+                    round_id,
+                    status: RoundStatus::Open,
+                    start_time: current_time,
+                    end_time: round_end_time,
+                    prize_amount: 0,
+                    commission_balance: 0,
+                    purchases_count: 0,
+                    total_tickets: 0,
+                    winner_ticket_index: None,
+                    winner_purchase_index: None,
+                    winner_address: None,
+                    prize_claimed: false,
+                    bump: round_bump,
+                };
+                
+                let mut writer = &mut round_account_data[..];
+                round_data.try_serialize(&mut writer)?;
+            }
+
+            // ========== Create RoundTickets account ==========
+            let round_key = ctx.accounts.round.key();
+            let round_tickets_seeds = &[
+                b"round_tickets".as_ref(),
+                round_key.as_ref(),
+                &[round_tickets_bump],
+            ];
+            let tickets_space = 8 + std::mem::size_of::<RoundTickets>();
+            let tickets_lamports = rent.minimum_balance(tickets_space);
+            
+            invoke_signed(
+                &system_instruction::create_account(
+                    &ctx.accounts.rent_vault.key(),
+                    &ctx.accounts.round_tickets.key(),
+                    tickets_lamports,
+                    tickets_space as u64,
+                    ctx.program_id,
+                ),
+                &[
+                    ctx.accounts.rent_vault.to_account_info(),
+                    ctx.accounts.round_tickets.to_account_info(),
+                    ctx.accounts.system_program.to_account_info(),
+                ],
+                &[vault_seeds, round_tickets_seeds],
+            )?;
+
+            // Initialize RoundTickets
+            {
+                let mut tickets_data = ctx.accounts.round_tickets.try_borrow_mut_data()?;
+            
+                let discriminator = RoundTickets::DISCRIMINATOR;
+                tickets_data[0..8].copy_from_slice(&discriminator);
+                
+                for byte in &mut tickets_data[8..] {
+                    *byte = 0;
                 }
-            } else {
-                msg!("⚠️ Round {} already Completed, not adding to pending", prev_id);
+                
+                tickets_data[8..40].copy_from_slice(round_key.as_ref());
+                
+                let bump_offset = 8 + 32 + (1024 * 4) + (1024 * 4) + 4;
+                tickets_data[bump_offset] = round_tickets_bump;
             }
-        }
-    }
 
-    sol_raffle.current_round_id = Some(round_id);
-    sol_raffle.total_rounds = sol_raffle
-        .total_rounds
-        .checked_add(1)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-    sol_raffle.current_round_status = RoundStatus::Open;
-    sol_raffle.current_round_end_time = Some(round_end_time);
+            // Update sol_raffle state
+            if let Some(prev_id) = sol_raffle.current_round_id {
+                let prev_round_end = sol_raffle.current_round_end_time.unwrap();
 
-    Ok(())
-}
-//TEST
-
-pub fn buy_tickets_sol(
-    ctx: Context<BuyTicketsSol>,
-    round_id: u32,
-    purchase_index: u32,
-    count: u32,
-    max_cost: u64,
-) -> Result<()> {
-    msg!("Tickets count: {}", count);
-    require!(count > 0, RaffleError::InvalidTicketCount);
-
-    let clock = Clock::get()?;
-    let current_time = clock.unix_timestamp;
-    let sol_raffle = &mut ctx.accounts.sol_raffle;
-    
-    let round_exists = ctx.accounts.round.owner == ctx.program_id 
-        && ctx.accounts.round.data_len() > 0;
-    
-    if !round_exists {
-        msg!("🆕 Round {} doesn't exist, creating...", round_id);
-        
-        let rent = Rent::get()?;
-        let sol_raffle_key = sol_raffle.key();
-        
-        let vault_bump = ctx.bumps.rent_vault;
-        let round_bump = ctx.bumps.round;
-        let round_tickets_bump = ctx.bumps.round_tickets;
-        
-        let vault_seeds = &[b"rent_vault".as_ref(), &[vault_bump]];
-        
-        // ========== Create Round account ==========
-        let round_seeds = &[
-            b"round".as_ref(),
-            sol_raffle_key.as_ref(),
-            &round_id.to_le_bytes(),
-            &[round_bump],
-        ];
-        let round_space = 8 + Round::INIT_SPACE;
-        let round_lamports = rent.minimum_balance(round_space);
-
-        invoke_signed(
-            &system_instruction::create_account(
-                &ctx.accounts.rent_vault.key(),
-                &ctx.accounts.round.key(),
-                round_lamports,
-                round_space as u64,
-                ctx.program_id,
-            ),
-            &[
-                ctx.accounts.rent_vault.to_account_info(),
-                ctx.accounts.round.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds, round_seeds],
-        )?;
-        
-        // Initialize Round
-        {
-            let round_end_time = get_temporary_close_time(current_time);
-            let mut round_account_data = ctx.accounts.round.try_borrow_mut_data()?;
-            
-            let round_data = Round {
-                initialized: true,
-                token_raffle: sol_raffle_key,
-                round_id,
-                status: RoundStatus::Open,
-                start_time: current_time,
-                end_time: round_end_time,
-                prize_amount: 0,
-                commission_balance: 0,
-                purchases_count: 0,
-                total_tickets: 0,
-                winner_ticket_index: None,
-                winner_purchase_index: None,
-                winner_address: None,
-                prize_claimed: false,
-                bump: round_bump,
-            };
-            
-            let mut writer = &mut round_account_data[..];
-            round_data.try_serialize(&mut writer)?;
-        }
-
-        // ========== Create RoundTickets account ==========
-        let round_key = ctx.accounts.round.key();
-        let round_tickets_seeds = &[
-            b"round_tickets".as_ref(),
-            round_key.as_ref(),
-            &[round_tickets_bump],
-        ];
-        let tickets_space = 8 + std::mem::size_of::<RoundTickets>();
-        let tickets_lamports = rent.minimum_balance(tickets_space);
-        
-        invoke_signed(
-            &system_instruction::create_account(
-                &ctx.accounts.rent_vault.key(),
-                &ctx.accounts.round_tickets.key(),
-                tickets_lamports,
-                tickets_space as u64,
-                ctx.program_id,
-            ),
-            &[
-                ctx.accounts.rent_vault.to_account_info(),
-                ctx.accounts.round_tickets.to_account_info(),
-                ctx.accounts.system_program.to_account_info(),
-            ],
-            &[vault_seeds, round_tickets_seeds],
-        )?;
-
-        // Initialize RoundTickets
-        {
-            let mut tickets_data = ctx.accounts.round_tickets.try_borrow_mut_data()?;
-        
-            let discriminator = RoundTickets::DISCRIMINATOR;
-            tickets_data[0..8].copy_from_slice(&discriminator);
-            
-            for byte in &mut tickets_data[8..] {
-                *byte = 0;
-            }
-            
-            tickets_data[8..40].copy_from_slice(round_key.as_ref());
-            
-            let bump_offset = 8 + 32 + (1024 * 4) + (1024 * 4) + 4;
-            tickets_data[bump_offset] = round_tickets_bump;
-        }
-
-        // Update sol_raffle state
-        if let Some(prev_id) = sol_raffle.current_round_id {
-            let prev_round_end = sol_raffle.current_round_end_time.unwrap();
-
-            if current_time >= prev_round_end {
-                if sol_raffle.current_round_status == RoundStatus::Open {
-                    if !sol_raffle.pending_rounds.contains(&prev_id) {
-                        sol_raffle.pending_rounds.push(prev_id);
-                        msg!("✅ Added round {} to pending", prev_id);
+                if current_time >= prev_round_end {
+                    if sol_raffle.current_round_status == RoundStatus::Open {
+                        if !sol_raffle.pending_rounds.contains(&prev_id) {
+                            sol_raffle.pending_rounds.push(prev_id);
+                            msg!("✅ Added round {} to pending", prev_id);
+                        }
                     }
                 }
             }
+
+            sol_raffle.current_round_id = Some(round_id);
+            sol_raffle.total_rounds = sol_raffle
+                .total_rounds
+                .checked_add(1)
+                .ok_or(ProgramError::ArithmeticOverflow)?;
+            sol_raffle.current_round_status = RoundStatus::Open;
+            sol_raffle.current_round_end_time = Some(get_temporary_close_time(current_time));
+            
+            msg!("✅ Round {} created", round_id);
+        }
+        
+        // Load and deserialize Round
+        let round_data = ctx.accounts.round.try_borrow_data()?;
+        let mut round_reader = &round_data[..];
+        let mut round = Round::try_deserialize(&mut round_reader)?;
+        drop(round_data); // Release the borrow immediately
+
+        require!(
+            purchase_index == round.purchases_count,
+            RaffleError::InvalidPurchaseIndex
+        );
+
+        let current_round_id = sol_raffle.current_round_id.unwrap_or(0);
+        let current_round_end_time = sol_raffle.current_round_end_time.unwrap_or(i64::MAX);
+
+        let is_current_round = round_id == current_round_id && current_time < current_round_end_time;
+        let is_next_round = round_id == current_round_id + 1 && current_time >= current_round_end_time;
+
+        require!(
+            is_current_round || is_next_round,
+            RaffleError::RoundNotAvailable
+        );
+
+        require!(round.initialized, RaffleError::RoundNotInitialized);
+
+        // Verify round_tickets connection
+        {
+            let tickets_data = ctx.accounts.round_tickets.try_borrow_data()?;
+            let tickets_round_key = Pubkey::try_from(&tickets_data[8..40])
+                .map_err(|_| RaffleError::RoundTicketsNotInitialized)?;
+            require!(
+                tickets_round_key == ctx.accounts.round.key(),
+                RaffleError::RoundTicketsNotInitialized
+            );
         }
 
-        sol_raffle.current_round_id = Some(round_id);
-        sol_raffle.total_rounds = sol_raffle
-            .total_rounds
-            .checked_add(1)
+        let round_tickets_purchase = &mut ctx.accounts.round_tickets_purchase;
+        let round_tickets_purchase_bump = ctx.bumps.round_tickets_purchase;
+
+        initialize_round_tickets_purchase(
+            round_tickets_purchase,
+            ctx.accounts.round.key(),
+            round.purchases_count,
+            ctx.accounts.player.key(),
+            count,
+            round_tickets_purchase_bump
+        )?;
+
+        let raffle_state = &ctx.accounts.raffle_state;
+        let ticket_price: u64 = calculate_ticket_price_for_sol(
+                &ctx.accounts.btc_price_feed,
+                &ctx.accounts.sol_price_feed,
+            )?;
+        require!(ticket_price > 0, RaffleError::InvalidTicketPrice);
+
+        let cost = ticket_price
+            .checked_mul(count as u64)
             .ok_or(ProgramError::ArithmeticOverflow)?;
-        sol_raffle.current_round_status = RoundStatus::Open;
-        sol_raffle.current_round_end_time = Some(get_temporary_close_time(current_time));
-        
-        msg!("✅ Round {} created", round_id);
-    }
-    
-    // Load and deserialize Round
-    let round_data = ctx.accounts.round.try_borrow_data()?;
-    let mut round_reader = &round_data[..];
-    let mut round = Round::try_deserialize(&mut round_reader)?;
-    drop(round_data); // Release the borrow immediately
+        require!(cost <= max_cost, RaffleError::InsufficientSlippage);
 
-    let current_round_id = sol_raffle.current_round_id.unwrap_or(0);
-    let current_round_end_time = sol_raffle.current_round_end_time.unwrap_or(i64::MAX);
-
-    let is_current_round = round_id == current_round_id && current_time < current_round_end_time;
-    let is_next_round = round_id == current_round_id + 1 && current_time >= current_round_end_time;
-
-    require!(
-        is_current_round || is_next_round,
-        RaffleError::RoundNotAvailable
-    );
-
-    require!(round.initialized, RaffleError::RoundNotInitialized);
-
-    // Verify round_tickets connection
-    {
-        let tickets_data = ctx.accounts.round_tickets.try_borrow_data()?;
-        let tickets_round_key = Pubkey::try_from(&tickets_data[8..40])
-            .map_err(|_| RaffleError::RoundTicketsNotInitialized)?;
         require!(
-            tickets_round_key == ctx.accounts.round.key(),
-            RaffleError::RoundTicketsNotInitialized
+            ctx.accounts.player.lamports() >= cost,
+            RaffleError::InsufficientFunds
         );
-    }
 
-    let round_tickets_purchase = &mut ctx.accounts.round_tickets_purchase;
-    let round_tickets_purchase_bump = ctx.bumps.round_tickets_purchase;
-
-    initialize_round_tickets_purchase(
-        round_tickets_purchase,
-        ctx.accounts.round.key(),
-        round.purchases_count,
-        ctx.accounts.player.key(),
-        count,
-        round_tickets_purchase_bump
-    )?;
-
-    let raffle_state = &ctx.accounts.raffle_state;
-    let ticket_price: u64 = if let Some(test_price) = raffle_state.test_ticket_price {
-        msg!("Using test ticket price: {} lamports", test_price);
-        test_price
-    } else {
-        msg!("Calculating ticket price from oracle feeds");
-        calculate_ticket_price_for_sol(
-            &ctx.accounts.btc_price_feed,
-            &ctx.accounts.sol_price_feed,
-        )?
-    };
-    require!(ticket_price > 0, RaffleError::InvalidTicketPrice);
-
-    let cost = ticket_price
-        .checked_mul(count as u64)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-    require!(cost <= max_cost, RaffleError::InsufficientSlippage);
-
-    require!(
-        ctx.accounts.player.lamports() >= cost,
-        RaffleError::InsufficientFunds
-    );
-
-    let commission_amount = cost
-        .checked_mul(raffle_state.entrance_fee_percentage as u64)
-        .ok_or(ProgramError::ArithmeticOverflow)?
-        .checked_div(100)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    round.commission_balance = round
-        .commission_balance
-        .checked_add(commission_amount)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    let prize_amount = cost
-        .checked_sub(commission_amount)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    round.prize_amount = round
-        .prize_amount
-        .checked_add(prize_amount)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    let is_first_buyer = round.total_tickets == 0;
-
-    let mut new_total = round
-        .total_tickets
-        .checked_add(count)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    anchor_lang::system_program::transfer(
-        CpiContext::new(
-            ctx.accounts.system_program.to_account_info(),
-            anchor_lang::system_program::Transfer {
-                from: ctx.accounts.player.to_account_info(),
-                to: ctx.accounts.vault.to_account_info(),
-            },
-        ),
-        cost,
-    )?;
-
-    if is_first_buyer {
-        new_total = new_total + 1;
-
-        round_tickets_purchase.tickets_count = round_tickets_purchase
-            .tickets_count
-            .checked_add(1)
+        let commission_amount = cost
+            .checked_mul(raffle_state.entrance_fee_percentage as u64)
+            .ok_or(ProgramError::ArithmeticOverflow)?
+            .checked_div(100)
             .ok_or(ProgramError::ArithmeticOverflow)?;
 
-        emit!(FirstTicketBonusAwarded {
+        round.commission_balance = round
+            .commission_balance
+            .checked_add(commission_amount)
+            .ok_or(ProgramError::ArithmeticOverflow)?;
+
+        let prize_amount = cost
+            .checked_sub(commission_amount)
+            .ok_or(ProgramError::ArithmeticOverflow)?;
+
+        round.prize_amount = round
+            .prize_amount
+            .checked_add(prize_amount)
+            .ok_or(ProgramError::ArithmeticOverflow)?;
+
+        let is_first_buyer = round.total_tickets == 0;
+
+        let mut new_total = round
+            .total_tickets
+            .checked_add(count)
+            .ok_or(ProgramError::ArithmeticOverflow)?;
+
+        anchor_lang::system_program::transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                anchor_lang::system_program::Transfer {
+                    from: ctx.accounts.player.to_account_info(),
+                    to: ctx.accounts.vault.to_account_info(),
+                },
+            ),
+            cost,
+        )?;
+
+        if is_first_buyer {
+            new_total = new_total + 1;
+
+            round_tickets_purchase.tickets_count = round_tickets_purchase
+                .tickets_count
+                .checked_add(1)
+                .ok_or(ProgramError::ArithmeticOverflow)?;
+
+            emit!(FirstTicketBonusAwarded {
+                token: sol_raffle.token_mint,
+                round_id: round.round_id,
+                buyer: ctx.accounts.player.key(),
+                timestamp: current_time,
+                round_start_time: round.start_time,
+                round_end_time: round.end_time,
+            });
+        }
+
+        // Update round_tickets using zero-copy mutation
+        {
+            let mut tickets_data = ctx.accounts.round_tickets.try_borrow_mut_data()?;
+            
+            // Read current len (offset: 8 + 32 + 4096 + 4096 = 8232)
+            let len_offset = 8 + 32 + (1024 * 4) + (1024 * 4);
+            let len = u32::from_le_bytes([
+                tickets_data[len_offset],
+                tickets_data[len_offset + 1],
+                tickets_data[len_offset + 2],
+                tickets_data[len_offset + 3],
+            ]) as usize;
+            
+            require!(
+                len < MAX_TICKETS,
+                RaffleError::RoundTicketsFull
+            );
+
+            // Write new cumulative value
+            let cumulative_bytes = new_total.to_le_bytes();
+            if len < 1024 {
+                // Write to cumulative_tickets_1 (offset: 8 + 32)
+                let ticket_offset = 8 + 32 + (len * 4);
+                tickets_data[ticket_offset..ticket_offset + 4].copy_from_slice(&cumulative_bytes);
+            } else {
+                // Write to cumulative_tickets_2 (offset: 8 + 32 + 4096)
+                let ticket_offset = 8 + 32 + (1024 * 4) + ((len - 1024) * 4);
+                tickets_data[ticket_offset..ticket_offset + 4].copy_from_slice(&cumulative_bytes);
+            }
+            
+            // Update len
+            let new_len = (len + 1) as u32;
+            tickets_data[len_offset..len_offset + 4].copy_from_slice(&new_len.to_le_bytes());
+        }
+
+        round.total_tickets = new_total;
+        round.purchases_count += 1;
+
+        {
+            let mut final_round_data = ctx.accounts.round.try_borrow_mut_data()?;
+            let mut writer = &mut final_round_data[..];
+            round.try_serialize(&mut writer)?;
+        }
+
+        emit!(TicketPurchased {
             token: sol_raffle.token_mint,
             round_id: round.round_id,
             buyer: ctx.accounts.player.key(),
+            count,
+            total_amount: cost,
+            prize_amount,
+            commission_amount,
             timestamp: current_time,
-            round_start_time: round.start_time,
-            round_end_time: round.end_time,
         });
+
+        Ok(())
     }
-
-    // Update round_tickets using zero-copy mutation
-    {
-        let mut tickets_data = ctx.accounts.round_tickets.try_borrow_mut_data()?;
-        
-        // Read current len (offset: 8 + 32 + 4096 + 4096 = 8232)
-        let len_offset = 8 + 32 + (1024 * 4) + (1024 * 4);
-        let len = u32::from_le_bytes([
-            tickets_data[len_offset],
-            tickets_data[len_offset + 1],
-            tickets_data[len_offset + 2],
-            tickets_data[len_offset + 3],
-        ]) as usize;
-        
-        // Write new cumulative value
-        let cumulative_bytes = new_total.to_le_bytes();
-        if len < 1024 {
-            // Write to cumulative_tickets_1 (offset: 8 + 32)
-            let ticket_offset = 8 + 32 + (len * 4);
-            tickets_data[ticket_offset..ticket_offset + 4].copy_from_slice(&cumulative_bytes);
-        } else {
-            // Write to cumulative_tickets_2 (offset: 8 + 32 + 4096)
-            let ticket_offset = 8 + 32 + (1024 * 4) + ((len - 1024) * 4);
-            tickets_data[ticket_offset..ticket_offset + 4].copy_from_slice(&cumulative_bytes);
-        }
-        
-        // Update len
-        let new_len = (len + 1) as u32;
-        tickets_data[len_offset..len_offset + 4].copy_from_slice(&new_len.to_le_bytes());
-    }
-
-    round.total_tickets = new_total;
-    round.purchases_count += 1;
-
-    {
-        let mut final_round_data = ctx.accounts.round.try_borrow_mut_data()?;
-        let mut writer = &mut final_round_data[..];
-        round.try_serialize(&mut writer)?;
-    }
-
-    emit!(TicketPurchased {
-        token: sol_raffle.token_mint,
-        round_id: round.round_id,
-        buyer: ctx.accounts.player.key(),
-        count,
-        total_amount: cost,
-        prize_amount,
-        commission_amount,
-        timestamp: current_time,
-    });
-
-    Ok(())
-}
 
     pub fn request_randomness<'info>(
         ctx: Context<'_, '_, '_, 'info, RequestRandomness<'info>>,
@@ -923,39 +759,6 @@ pub fn buy_tickets_sol(
         Ok(())
     }
 
-    pub fn test_calculate_price(ctx: Context<TestCalculatePrice>) -> Result<()> {
-        let price = calculate_ticket_price_for_sol(
-            &ctx.accounts.btc_price_feed,
-            &ctx.accounts.sol_price_feed,
-        )?;
-
-        msg!("✅ Final ticket price in lamports: {}", price);
-        msg!(
-            "✅ Final ticket price in SOL: {}",
-            price as f64 / 1_000_000_000.0
-        );
-
-        Ok(())
-    }
-
-    //TEST
-    pub fn set_test_ticket_price(
-        ctx: Context<SetTestTicketPrice>,
-        price: Option<u64>,
-    ) -> Result<()> {
-        let raffle_state = &mut ctx.accounts.raffle_state;
-        raffle_state.test_ticket_price = price;
-        
-        if let Some(p) = price {
-            msg!("Test ticket price set to: {} lamports", p);
-        } else {
-            msg!("Test ticket price disabled - using oracle calculation");
-        }
-        
-        Ok(())
-    }
-    //TEST
-
     pub fn set_winner_address(
         ctx: Context<SetWinnerAddress>,
         round_id: u32,
@@ -1070,91 +873,6 @@ pub fn change_round_status(
     Ok(())
 }
 
-fn calculate_ticket_price_for_sol(
-    btc_price_feed: &AccountInfo,
-    sol_price_feed: &AccountInfo,
-) -> Result<u64> {
-    msg!("--- calculate_ticket_price_for_sol START ---");
-
-    let clock = Clock::get()?;
-    msg!("Current slot: {}", clock.slot);
-
-    // ===== SOL feed =====
-    msg!("Parsing SOL price feed...");
-    let sol_data = sol_price_feed.data.borrow();
-
-    let sol_feed = PullFeedAccountData::parse(sol_data).map_err(|e| {
-        msg!("SOL Switchboard parse failed: {:?}", e);
-        RaffleError::InvalidFeedAccount
-    })?;
-
-    let sol_price = sol_feed
-        .get_value(clock.slot, 1500, 3, false)
-        .map_err(|e| {
-            msg!("SOL Switchboard get_value failed: {:?}", e);
-            RaffleError::OracleError
-        })?;
-
-    msg!("SOL Price (Decimal): {}", sol_price);
-
-    // ===== BTC feed =====
-    msg!("Parsing BTC price feed...");
-    let btc_data = btc_price_feed.data.borrow();
-
-    let btc_feed = PullFeedAccountData::parse(btc_data).map_err(|e| {
-        msg!("BTC Switchboard parse failed: {:?}", e);
-        RaffleError::InvalidFeedAccount
-    })?;
-
-    let btc_price = btc_feed
-        .get_value(clock.slot, 1500, 1, false)
-        .map_err(|e| {
-            msg!("BTC Switchboard get_value failed: {:?}", e);
-            RaffleError::OracleError
-        })?;
-
-    msg!("BTC Price (Decimal): {}", btc_price);
-
-    // ===== Ticket price calculation =====
-    let ticket_price_btc =
-        Decimal::from_str(TICKET_BTC_STR).map_err(|_| ProgramError::ArithmeticOverflow)?;
-
-    msg!("Ticket price in BTC: {}", ticket_price_btc);
-
-    let ticket_price_usd = btc_price
-        .checked_mul(ticket_price_btc)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    msg!("Ticket price in USD: {}", ticket_price_usd);
-
-    let ticket_price_sol = ticket_price_usd
-        .checked_div(sol_price)
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    msg!("Ticket price in SOL: {}", ticket_price_sol);
-
-    let lamports_decimal = ticket_price_sol
-        .checked_mul(Decimal::from(LAMPORTS_PER_SOL))
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    msg!("Lamports (Decimal): {}", lamports_decimal);
-
-    let lamports_u128 = lamports_decimal
-        .round()
-        .to_u128()
-        .ok_or(ProgramError::ArithmeticOverflow)?;
-
-    msg!("Lamports (rounded, u128): {}", lamports_u128);
-
-    let lamports = u64::try_from(lamports_u128)
-        .map_err(|_| ProgramError::ArithmeticOverflow)?;
-
-    msg!("Final ticket price (lamports): {}", lamports);
-    msg!("--- calculate_ticket_price_for_sol END ---");
-
-    Ok(lamports)
-}
-
 fn transfer<'a>(
     system_program: AccountInfo<'a>,
     from: AccountInfo<'a>,
@@ -1187,41 +905,10 @@ fn transfer<'a>(
 
 // Account validation structs
 
-//TEST
-#[derive(Accounts)]
-#[instruction(round_id: u32)]
-pub struct GetCumulativeTickets<'info> {
-    #[account(
-        seeds = [
-            b"round",
-            sol_raffle.key().as_ref(),
-            &round_id.to_le_bytes()
-        ],
-        bump = round.bump
-    )]
-    pub round: Account<'info, Round>,
-
-    #[account(
-        seeds = [b"sol_raffle"],
-        bump = sol_raffle.bump
-    )]
-    pub sol_raffle: Account<'info, TokenRaffle>,
-
-    #[account(
-        seeds = [
-            b"round_tickets",
-            round.key().as_ref()
-        ],
-        bump
-    )]
-    pub round_tickets: AccountLoader<'info, RoundTickets>,
-}
-//TEST
-
 #[derive(Accounts)]
 pub struct FundRentVault<'info> {
     
-    /// PDA for storing funds fo rent
+    // PDA for storing funds fo rent
     #[account(
         mut,
         seeds = [b"rent_vault"],
@@ -1257,48 +944,6 @@ pub struct WithdrawRentVault<'info> {
 
     pub system_program: Program<'info, System>,
 }
-
-//TEST
-#[derive(Accounts)]
-#[instruction(round_id: u32)]
-pub struct InitializeRound<'info> {
-    #[account(
-        mut,
-        seeds = [b"sol_raffle"],
-        bump = sol_raffle.bump,
-        constraint = sol_raffle.authority == authority.key() @ RaffleError::Unauthorized
-    )]
-    pub sol_raffle: Account<'info, TokenRaffle>,
-    
-    /// CHECK: Created through CPI
-    #[account(
-        mut,
-        seeds = [b"round", sol_raffle.key().as_ref(), &round_id.to_le_bytes()],
-        bump
-    )]
-    pub round: UncheckedAccount<'info>,
-
-    /// CHECK: Created through CPI
-    #[account(
-        mut,
-        seeds = [b"round_tickets", round.key().as_ref()],
-        bump
-    )]
-    pub round_tickets: UncheckedAccount<'info>,
-
-    #[account(
-        mut,
-        seeds = [b"rent_vault"],
-        bump
-    )]
-    pub rent_vault: SystemAccount<'info>,
-    
-    #[account(mut)]
-    pub authority: Signer<'info>,
-    
-    pub system_program: Program<'info, System>,
-}
-//TEST
 
 #[derive(Accounts)]
 pub struct InitializeRaffle<'info> {
@@ -1528,14 +1173,6 @@ pub struct ClaimPrizeSol<'info> {
 }
 
 #[derive(Accounts)]
-pub struct TestCalculatePrice<'info> {
-    /// CHECK: Switchboard BTC price feed
-    pub btc_price_feed: AccountInfo<'info>,
-    /// CHECK: Switchboard SOL price feed
-    pub sol_price_feed: AccountInfo<'info>,
-}
-
-#[derive(Accounts)]
 pub struct RequestRandomness<'info> {
    
     #[account(
@@ -1552,7 +1189,7 @@ pub struct RequestRandomness<'info> {
     )]
     pub sol_raffle: Account<'info, TokenRaffle>,
 
-    /// PDA for VRF payment
+    // PDA for VRF payment
     #[account(
         mut,
         seeds = [b"vrf_fee_vault"],
@@ -1562,7 +1199,7 @@ pub struct RequestRandomness<'info> {
 
     pub vrf: Program<'info, OraoVrfCb>,
 
-    /// State of a registered client.
+    // State of a registered client.
     #[account(
         mut,
         seeds = [CLIENT_STATE_SEED],
@@ -1570,7 +1207,7 @@ pub struct RequestRandomness<'info> {
     )]
     pub client_state: Account<'info, ClientState>,
 
-    /// Registered client PDA.
+    // Registered client PDA.
     #[account(
         mut,
         seeds = [CB_CLIENT_ACCOUNT_SEED, crate::id().as_ref(), client_state.key().as_ref()],
@@ -1593,20 +1230,6 @@ pub struct RequestRandomness<'info> {
 
     pub system_program: Program<'info, System>,
 }
-
-//TEST
-#[derive(Accounts)]
-pub struct SetTestTicketPrice<'info> {
-    #[account(
-        mut,
-        seeds = [b"raffle_state"],
-        bump = raffle_state.bump
-    )]
-    pub raffle_state: Account<'info, RaffleState>,
-    
-    pub authority: Signer<'info>,
-}
-//TEST
 
 #[derive(Accounts)]
 #[instruction(round_id: u32, purchase_index: u32)]
@@ -1661,7 +1284,6 @@ pub struct RaffleState {
     pub created_at: i64,
     pub vrf_request_counter: u8,
     pub bump: u8,
-    pub test_ticket_price: Option<u64>,
 }
 
 #[account]
@@ -1717,8 +1339,6 @@ pub struct RoundTickets {
 }
 
 impl RoundTickets {
-    //TEST
-    // Helper для читання як один масив
     pub fn get_tickets(&self) -> Vec<u32> {
         let len = self.len as usize;
         
@@ -1727,17 +1347,14 @@ impl RoundTickets {
         }
         
         if len <= 1024 {
-            // Всі tickets в першому масиві
             self.cumulative_tickets_1[..len].to_vec()
         } else {
-            // Tickets розподілені по обох масивах
             let mut result = Vec::with_capacity(len);
             result.extend_from_slice(&self.cumulative_tickets_1);
             result.extend_from_slice(&self.cumulative_tickets_2[..(len - 1024)]);
             result
         }
     }
-    //TEST
     
     pub fn get_ticket_at(&self, index: usize) -> u32 {
         if index < 1024 {
@@ -1935,6 +1552,9 @@ pub enum RaffleError {
 
     #[msg("Round not open")]
     RoundNotOpen,
+
+    #[msg("Round tickets storage is full (max 2048 purchases)")]
+    RoundTicketsFull,
 
     #[msg("Round tickets not initialized")]
     RoundTicketsNotInitialized,

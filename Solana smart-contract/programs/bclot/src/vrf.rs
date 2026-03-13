@@ -10,11 +10,16 @@ use orao_solana_vrf_cb::{
     RequestParams, CB_CLIENT_ACCOUNT_SEED, CB_CONFIG_ACCOUNT_SEED, CB_REQUEST_ACCOUNT_SEED,
 };
 use bytemuck::Pod;
-use crate::{Round, TokenRaffle, RoundStatus, RaffleError};
-use crate::change_round_status;
-use crate::CLIENT_STATE_SEED;
-use crate::ClientState;
-use crate::RoundTickets;
+use crate::{
+    Round,
+    TokenRaffle,
+    RoundStatus,
+    ClientState,
+    RoundTickets,
+    RaffleError,
+    CLIENT_STATE_SEED,
+    change_round_status
+};
 
 pub fn initialize_client_state(ctx: Context<InitializeClientState>) -> Result<()> {
     let client_state = &mut ctx.accounts.client_state;
@@ -34,8 +39,6 @@ pub fn consume_randomness(
     ctx: Context<ConsumeRandomness>,
     round_id: u32
 ) -> Result<()> {
-    msg!("TEST consume_randomness");
-
     let randomness = ctx
         .accounts
         .request
@@ -79,8 +82,6 @@ fn pick_winner(
     round_tickets_info: &AccountInfo,
     random_number: u64,
 ) -> Result<()> {
-    msg!("TEST pick_winner");
-
     if round.status == RoundStatus::Completed {
         msg!("⚠️ Round {} already completed, skipping pick_winner", round.round_id);
         return Ok(());
@@ -126,7 +127,6 @@ fn pick_winner(
         timestamp: clock.unix_timestamp,
     });
 
-    msg!("TEST Winner picked");
     Ok(())
 }
 

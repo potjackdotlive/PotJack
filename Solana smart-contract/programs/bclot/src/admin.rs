@@ -1,11 +1,15 @@
 use anchor_lang::prelude::*;
 use std::collections::HashMap;
-use crate::calculate_ticket_price_for_sol;
-use crate::TICKET_BTC_SATOSHIS;
-use crate::Round;
-use crate::RoundStatus;
-use crate::RaffleState;
-use crate::TokenRaffle;
+use crate::{
+    Round,
+    RoundStatus,
+    RaffleState,
+    TokenRaffle,
+};
+use crate::price_feeds::{
+    calculate_ticket_price_for_sol,
+    TICKET_BTC_SATOSHIS,
+};
     
 pub fn get_raffle_state(ctx: Context<GetRaffleState>) -> Result<RaffleStateView> {
     let state = &ctx.accounts.raffle_state;
@@ -16,10 +20,8 @@ pub fn get_raffle_state(ctx: Context<GetRaffleState>) -> Result<RaffleStateView>
         beneficiary: state.beneficiary,
         created_at: state.created_at,
         vrf_request_counter: state.vrf_request_counter,
-        test_ticket_price: state.test_ticket_price,
     })
 }
-
 
 pub fn get_token_raffle(ctx: Context<GetTokenRaffle>) -> Result<TokenRaffleView> {
     let raffle = &ctx.accounts.sol_raffle;
@@ -40,19 +42,6 @@ pub fn get_raffle_round_result(ctx: Context<GetRoundAccounts>, round_id: u32) ->
     let round = &ctx.accounts.round;
 
     let mut players_map: std::collections::HashMap<Pubkey, RoundPlayerDataWithAddress> = HashMap::new();
-
-    // for ticket in round.tickets.iter() {
-    //     let entry = players_map.entry(ticket.owner).or_insert(RoundPlayerDataWithAddress {
-    //         player: ticket.owner,
-    //         tickets_count: 0,
-    //         has_bonus_ticket: false,
-    //     });
-
-    //     entry.tickets_count += 1;
-    //     if ticket.is_bonus {
-    //         entry.has_bonus_ticket = true;
-    //     }
-    // }
 
     let round_players: Vec<RoundPlayerDataWithAddress> = players_map.into_values().collect();
 
@@ -76,19 +65,6 @@ pub fn get_raffle_round_data(ctx: Context<GetRoundAccounts>, round_id: u32) -> R
 
     let mut players_map: std::collections::HashMap<Pubkey, RoundPlayerDataWithAddress> = HashMap::new();
 
-    // for ticket in round.tickets.iter() {
-    //     let entry = players_map.entry(ticket.owner).or_insert(RoundPlayerDataWithAddress {
-    //         player: ticket.owner,
-    //         tickets_count: 0,
-    //         has_bonus_ticket: false,
-    //     });
-
-    //     entry.tickets_count += 1;
-    //     if ticket.is_bonus {
-    //         entry.has_bonus_ticket = true;
-    //     }
-    // }
-
     let round_players: Vec<RoundPlayerDataWithAddress> = players_map.into_values().collect();
 
     Ok(RoundDataView {
@@ -99,7 +75,6 @@ pub fn get_raffle_round_data(ctx: Context<GetRoundAccounts>, round_id: u32) -> R
         end_time: round.end_time,
         prize_amount: round.prize_amount,
         commission_balance: round.commission_balance,
-        //cumulative_tickets: round.cumulative_tickets.clone(),
         winner_address: round.winner_address,
         winner_purchase_index: round.winner_purchase_index,
         winner_ticket_index: round.winner_ticket_index,
@@ -212,7 +187,6 @@ pub struct RaffleStateView {
     pub beneficiary: Pubkey,
     pub created_at: i64,
     pub vrf_request_counter: u8,
-    pub test_ticket_price: Option<u64>,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]

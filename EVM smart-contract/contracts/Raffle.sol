@@ -151,7 +151,6 @@ contract Raffle is
     AggregatorV3Interface private _btcToUsdPriceFeed;
     AggregatorV3Interface private _ethToUsdPriceFeed;
     mapping(address => AggregatorV3Interface) private _priceFeeds;
-    //address private constant BTC_IDENTIFIER = address(0xDEADBEEF);
     address private constant NATIVE_IDENTIFIER = address(0);
 
     mapping(address => TokenRaffle) private _raffles; // token => it's raffle
@@ -365,7 +364,9 @@ contract Raffle is
             cost = costPerTicket * count; // Safe: count is limited and costPerTicket is validated
         }
 
-        require(cost <= maxCost, "Insufficient slippage");
+        if (token != NATIVE_IDENTIFIER){
+            require(cost <= maxCost, "Insufficient slippage");   
+        }
 
         if (token == NATIVE_IDENTIFIER) {
             require(msg.value >= cost, "Insufficient funds");
