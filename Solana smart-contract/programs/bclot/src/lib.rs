@@ -23,7 +23,7 @@ use orao_solana_vrf_cb::{
 use bytemuck::{Pod, Zeroable};
 use std::cell::RefMut; 
 
-declare_id!("Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85");
+declare_id!("31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh");
 
 pub mod admin;
 pub mod price_feeds;
@@ -37,7 +37,7 @@ use vrf::*;
 const CLIENT_STATE_SEED: &[u8] = b"CLIENT_STATE";
 const SECONDS_IN_DAY: i64 = 86400;
 const NY_OFFSET: i64 = 4 * 3600; // UTC-4
-const ROUND_DURATION: i64 = 600; // 10 minutes
+const ROUND_DURATION: i64 = 43200; // 12 hours
 const MAX_TICKETS: usize = 2048; // 1024 + 1024
 
 #[program]
@@ -269,7 +269,7 @@ pub mod raffle {
             
             // Initialize Round
             {
-                let round_end_time = get_temporary_close_time(current_time);
+                let round_end_time = get_next_ny_anchor_time(current_time);
                 let mut round_account_data = ctx.accounts.round.try_borrow_mut_data()?;
                 
                 let round_data = Round {
@@ -357,7 +357,7 @@ pub mod raffle {
                 .checked_add(1)
                 .ok_or(ProgramError::ArithmeticOverflow)?;
             sol_raffle.current_round_status = RoundStatus::Open;
-            sol_raffle.current_round_end_time = Some(get_temporary_close_time(current_time));
+            sol_raffle.current_round_end_time = Some(get_next_ny_anchor_time(current_time));
             
             msg!("✅ Round {} created", round_id);
         }
@@ -836,9 +836,18 @@ fn initialize_round_tickets_purchase(
     Ok(())
 }
 
-fn get_temporary_close_time(current_timestamp: i64) -> i64 {
-    let round_active_time = current_timestamp % ROUND_DURATION;
-    current_timestamp - round_active_time + ROUND_DURATION
+fn get_next_ny_anchor_time(current_timestamp: i64) -> i64 {
+    let ny_time = current_timestamp - NY_OFFSET;
+    let ny_seconds_in_day = ny_time % SECONDS_IN_DAY;
+    let mut ny_today_anchor = ny_time - ny_seconds_in_day;
+
+    ny_today_anchor += ROUND_DURATION;
+
+    if ny_time >= ny_today_anchor {
+        ny_today_anchor += ROUND_DURATION;
+    }
+
+    ny_today_anchor + NY_OFFSET
 }
 
 pub fn change_round_status(

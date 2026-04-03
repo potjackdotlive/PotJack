@@ -6,14 +6,21 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-bclot = "4JVMVPbeQ99TT3Jz3toaiLrTNf72iZ4X8jXYj5FseExc"
+raffle = "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh"
+
+[programs.devnet]
+raffle = "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh"
+
+[programs.mainnet]
+raffle = "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
+timeout = 60000
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

@@ -123,7 +123,7 @@ contract Raffle is
     /* State variables */
     // Day variables
     uint256 constant SECONDS_IN_DAY = 86400;
-    uint256 constant NY_OFFSET = 4 * 3600; // UTC−4
+    uint64 constant NY_OFFSET = 4 * 3600; // UTC−4
 
     // Chainlink VRF Variables
     uint256 private immutable i_subscriptionId;
@@ -384,7 +384,7 @@ contract Raffle is
             );
         }
 
-        (bool hasOpenRound, uint32 roundId) = getCurrentRaffleRoundId(token);
+        (bool hasOpenRound, uint32 roundId) = findOpenRoundId(token);
         TokenRaffle storage _tokenRaffle = _raffles[token];
         Round storage round;
 
@@ -394,7 +394,7 @@ contract Raffle is
 
             round = _tokenRaffle.rounds[roundId];
             round.startTime = uint64(block.timestamp);
-            round.endTime = getTemporaryCloseTime();
+            round.endTime = getNextNYAnchorTime();
 
             changeRoundStatus(token, roundId, round, Status.Open);
             activeRounds.push(ActiveRound(token, roundId, 0));
@@ -736,15 +736,15 @@ contract Raffle is
     }
 
     /**
-     * @notice Gets the current open round ID for a specific token
+     * @notice Find the current open round ID for a specific token
      * @dev Returns (false, 0) if there is no open round for the token
      * @param token The address of the token to check
      * @return hasOpenRound Boolean indicating if there is an open round
      * @return roundId The current round ID if there is an open round
      */
-    function getCurrentRaffleRoundId(
+    function findOpenRoundId(
         address token
-    ) public view returns (bool hasOpenRound, uint32 roundId) {
+    ) private view returns (bool hasOpenRound, uint32 roundId) {
         require(isSupportedToken(token), "Token not supported");
         
         TokenRaffle storage tl = _raffles[token];
@@ -755,11 +755,29 @@ contract Raffle is
         Round storage r = tl.rounds[len - 1];
         
         // Check if round is open and not expired
-        if (r.status != Status.Open || r.endTime < block.timestamp) {
+        if (r.status != Status.Open || r.endTime <= block.timestamp) {
             return (false, 0);
         }
         
         return (true, len - 1);
+    }
+
+    function getCurrentRaffleRoundId(
+        address token
+    ) public view returns (uint32 roundId) {
+        require(isSupportedToken(token), "Token not supported");
+
+        TokenRaffle storage tl = _raffles[token];
+        uint32 len = uint32(tl.rounds.length);
+
+        if (len > 0) {
+            Round storage r = tl.rounds[len - 1];
+            if (r.status == Status.Open && r.endTime > block.timestamp) {
+                return (len - 1);
+            }
+        }
+
+        return (len);
     }
 
     /**
@@ -863,12 +881,12 @@ contract Raffle is
      * @dev Returns the next NY anchor time
      * @return nextNYAnchorTime The next NY anchor time
      */
-    function getNextNYAnchorTime() internal view returns (uint256) {
-        uint256 currentTimestamp = block.timestamp;
+    function getNextNYAnchorTime() internal view returns (uint64) {
+        uint64 currentTimestamp = uint64(block.timestamp);
 
-        uint256 nyTime = currentTimestamp - NY_OFFSET;
-        uint256 nySecondsInDay = uint256(nyTime % SECONDS_IN_DAY);
-        uint256 nyTodayAnchorTime = uint256(nyTime - nySecondsInDay);
+        uint64 nyTime = currentTimestamp - NY_OFFSET;
+        uint64 nySecondsInDay = uint64(nyTime % SECONDS_IN_DAY);
+        uint64 nyTodayAnchorTime = uint64(nyTime - nySecondsInDay);
 
         // Add 12 hours to get to noon
         nyTodayAnchorTime += 12 * 3600;
@@ -879,17 +897,6 @@ contract Raffle is
         }
 
         return nyTodayAnchorTime + NY_OFFSET;
-    }
-
-    /**
-     * @notice Get the temporary close time
-     * @dev Returns the temporary close time (15 minutes from now)
-     * @return temporaryCloseTime The temporary close time
-     */
-    function getTemporaryCloseTime() internal view returns (uint64) {
-        uint64 currentTimestamp = uint64(block.timestamp);
-        uint64 roundActiveTime = currentTimestamp % 900; // 900 seconds = 15 minutes
-        return currentTimestamp - roundActiveTime + 900;
     }
 
     /**
@@ -978,9 +985,10 @@ contract Raffle is
             revert Raffle__PriceFeedNotSet(token);
         }
 
-        PriceData memory tokenPrice = _getValidatedPriceData(
+        PriceData memory tokenPriceData = _getValidatedPriceData(
             _priceFeeds[token]
         );
+        uint256 tokenPrice = tokenPriceData.price;
 
         ERC20 _token = ERC20(token);
 
@@ -991,7 +999,7 @@ contract Raffle is
         return (
             ((priceInUsd *
                 (10 ** (tokenDecimals + feedDecimals - USD_DECIMALS))) /
-                tokenPrice.price)
+                tokenPrice)
         );
     }
 
