@@ -1,5 +1,5 @@
 {
-  "address": "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85",
+  "address": "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh",
   "metadata": {
     "name": "raffle",
     "version": "0.1.0",
@@ -466,38 +466,38 @@
               {
                 "kind": "const",
                 "value": [
-                  143,
-                  255,
-                  61,
-                  124,
-                  19,
-                  225,
-                  65,
-                  94,
-                  249,
-                  37,
-                  60,
-                  50,
-                  126,
-                  67,
-                  27,
+                  29,
+                  238,
+                  90,
+                  117,
+                  110,
+                  0,
+                  36,
                   220,
-                  163,
-                  155,
-                  72,
-                  63,
-                  14,
-                  92,
-                  64,
-                  59,
-                  249,
-                  149,
+                  60,
+                  8,
+                  142,
+                  199,
+                  244,
+                  240,
+                  107,
+                  29,
+                  228,
+                  225,
                   209,
-                  182,
-                  120,
-                  10,
-                  201,
-                  178
+                  126,
+                  190,
+                  179,
+                  45,
+                  90,
+                  119,
+                  170,
+                  51,
+                  103,
+                  146,
+                  69,
+                  48,
+                  16
                 ]
               },
               {
@@ -779,9 +779,6 @@
       "accounts": [
         {
           "name": "rent_vault",
-          "docs": [
-            "PDA for storing funds fo rent"
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1472,9 +1469,6 @@
         },
         {
           "name": "vrf_fee_vault",
-          "docs": [
-            "PDA for VRF payment"
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1505,9 +1499,6 @@
         },
         {
           "name": "client_state",
-          "docs": [
-            "State of a registered client."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1533,9 +1524,6 @@
         },
         {
           "name": "client",
-          "docs": [
-            "Registered client PDA."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1562,38 +1550,38 @@
               {
                 "kind": "const",
                 "value": [
-                  143,
-                  255,
-                  61,
-                  124,
-                  19,
-                  225,
-                  65,
-                  94,
-                  249,
-                  37,
-                  60,
-                  50,
-                  126,
-                  67,
-                  27,
+                  29,
+                  238,
+                  90,
+                  117,
+                  110,
+                  0,
+                  36,
                   220,
-                  163,
-                  155,
-                  72,
-                  63,
-                  14,
-                  92,
-                  64,
-                  59,
-                  249,
-                  149,
+                  60,
+                  8,
+                  142,
+                  199,
+                  244,
+                  240,
+                  107,
+                  29,
+                  228,
+                  225,
                   209,
-                  182,
-                  120,
-                  10,
-                  201,
-                  178
+                  126,
+                  190,
+                  179,
+                  45,
+                  90,
+                  119,
+                  170,
+                  51,
+                  103,
+                  146,
+                  69,
+                  48,
+                  16
                 ]
               },
               {
@@ -1878,9 +1866,6 @@
     },
     {
       "name": "withdraw_rent_vault",
-      "docs": [
-        "Only authority"
-      ],
       "discriminator": [
         102,
         130,
@@ -1962,9 +1947,6 @@
     },
     {
       "name": "withdraw_vrf_vault",
-      "docs": [
-        "Only authority"
-      ],
       "discriminator": [
         14,
         31,
