@@ -144,12 +144,9 @@ export type RequestRandomnessAsyncInput<
 > = {
   raffleState?: Address<TAccountRaffleState>;
   solRaffle?: Address<TAccountSolRaffle>;
-  /** PDA for VRF payment */
   vrfFeeVault?: Address<TAccountVrfFeeVault>;
   vrf?: Address<TAccountVrf>;
-  /** State of a registered client. */
   clientState?: Address<TAccountClientState>;
-  /** Registered client PDA. */
   client?: Address<TAccountClient>;
   networkState?: Address<TAccountNetworkState>;
   treasury: Address<TAccountTreasury>;
@@ -279,9 +276,9 @@ export async function getRequestRandomnessInstructionAsync<
         ),
         getBytesEncoder().encode(
           new Uint8Array([
-            143, 255, 61, 124, 19, 225, 65, 94, 249, 37, 60, 50, 126, 67, 27,
-            220, 163, 155, 72, 63, 14, 92, 64, 59, 249, 149, 209, 182, 120, 10,
-            201, 178,
+            29, 238, 90, 117, 110, 0, 36, 220, 60, 8, 142, 199, 244, 240, 107,
+            29, 228, 225, 209, 126, 190, 179, 45, 90, 119, 170, 51, 103, 146,
+            69, 48, 16,
           ]),
         ),
         getAddressEncoder().encode(expectAddress(accounts.clientState.value)),
@@ -350,12 +347,9 @@ export type RequestRandomnessInput<
 > = {
   raffleState: Address<TAccountRaffleState>;
   solRaffle: Address<TAccountSolRaffle>;
-  /** PDA for VRF payment */
   vrfFeeVault: Address<TAccountVrfFeeVault>;
   vrf?: Address<TAccountVrf>;
-  /** State of a registered client. */
   clientState: Address<TAccountClientState>;
-  /** Registered client PDA. */
   client: Address<TAccountClient>;
   networkState: Address<TAccountNetworkState>;
   treasury: Address<TAccountTreasury>;
@@ -471,12 +465,9 @@ export type ParsedRequestRandomnessInstruction<
   accounts: {
     raffleState: TAccountMetas[0];
     solRaffle: TAccountMetas[1];
-    /** PDA for VRF payment */
     vrfFeeVault: TAccountMetas[2];
     vrf: TAccountMetas[3];
-    /** State of a registered client. */
     clientState: TAccountMetas[4];
-    /** Registered client PDA. */
     client: TAccountMetas[5];
     networkState: TAccountMetas[6];
     treasury: TAccountMetas[7];

@@ -110,7 +110,6 @@ export type FundRentVaultAsyncInput<
   TAccountFunder extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
-  /** PDA for storing funds fo rent */
   rentVault?: Address<TAccountRentVault>;
   funder: TransactionSigner<TAccountFunder>;
   systemProgram?: Address<TAccountSystemProgram>;
@@ -194,7 +193,6 @@ export type FundRentVaultInput<
   TAccountFunder extends string = string,
   TAccountSystemProgram extends string = string,
 > = {
-  /** PDA for storing funds fo rent */
   rentVault: Address<TAccountRentVault>;
   funder: TransactionSigner<TAccountFunder>;
   systemProgram?: Address<TAccountSystemProgram>;
@@ -267,7 +265,6 @@ export type ParsedFundRentVaultInstruction<
 > = {
   programAddress: Address<TProgram>;
   accounts: {
-    /** PDA for storing funds fo rent */
     rentVault: TAccountMetas[0];
     funder: TAccountMetas[1];
     systemProgram: TAccountMetas[2];

@@ -165,6 +165,8 @@ export const NotificationItem: FC<NotificationItemProps> = ({ isRead, winEvent, 
       tokenAddress: winEvent?.token as Address,
     });
 
+  console.log({ winEvent });
+
   return (
     <Flex css={styles.root} gap={12} ref={eventItem}>
       <Icon type={status === EventItemStatus.Ended ? IconTypes.Coins : IconTypes.Crown} />

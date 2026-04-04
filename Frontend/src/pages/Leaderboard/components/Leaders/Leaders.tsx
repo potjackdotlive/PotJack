@@ -22,7 +22,7 @@ export const Leaders: FC<LeadersProps> = ({ contractAddress, tokenAddress }) => 
     variables: {
       contractAddress,
       tokenAddress,
-      limit: TOP_LEADERS_LIMIT,
+      limit: TOP_LEADERS_LIMIT + 1,
       offset: 0,
     },
     pollInterval: 5000,
@@ -39,7 +39,7 @@ export const Leaders: FC<LeadersProps> = ({ contractAddress, tokenAddress }) => 
     );
   }
 
-  if (topLeaders.length < 3) {
+  if (topLeaders.length <= TOP_LEADERS_LIMIT) {
     return null;
   }
 
@@ -54,7 +54,7 @@ export const Leaders: FC<LeadersProps> = ({ contractAddress, tokenAddress }) => 
         <Swiper
           spaceBetween={8}
           slidesPerView="auto"
-          centeredSlides={true}
+          centeredSlides
           initialSlide={1}
           css={css`
             &.swiper {

@@ -20,8 +20,7 @@ export const useLeaderboardTable = ({ contractAddress, tokenAddress }: UseLeader
     variables: {
       contractAddress,
       tokenAddress,
-      limit: LEADERS_LIMIT,
-      offset: (currentPage - 1) * LEADERS_LIMIT,
+      limit: LEADERS_LIMIT + 1,
       walletAddress: String(debouncedValue),
     },
     fetchPolicy: "no-cache",
@@ -44,8 +43,8 @@ export const useLeaderboardTable = ({ contractAddress, tokenAddress }: UseLeader
   const { content: leaders = [], totalPages = 0, totalElements = 0 } = leadersData?.userStats || {};
 
   const data: Omit<UserStats, "contractAddress" | "roundId" | "tokenAddress">[] = useMemo(
-    () => (leaders.length < TOP_LEADERS_LIMIT ? leaders : leaders?.slice(TOP_LEADERS_LIMIT)),
-    [leaders],
+    () => (leaders.length > TOP_LEADERS_LIMIT ? leaders?.slice(TOP_LEADERS_LIMIT) : leaders),
+    [leaders, leadersData?.userStats?.totalElements],
   );
 
   const showSelf = useMemo(

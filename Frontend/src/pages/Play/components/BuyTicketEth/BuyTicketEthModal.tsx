@@ -1,11 +1,12 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Flex, Modal, Typography } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 import useBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 import Crown from "icons/li_crown.svg?react";
 import { SwitchChainError } from "viem";
-import { useConnection, useSwitchChain } from "wagmi";
+import { useConfig, useConnection, useSwitchChain } from "wagmi";
+import { getConnection } from "wagmi/actions";
 import { Button } from "components/Button/Button";
 import { errorNotification, warningNotification } from "components/Notification/Notification";
 import { QUERY_KEYS } from "constants/queryKeys";
@@ -34,8 +35,9 @@ import {
   TXT_INSUFFICIENT_SLIPPAGE,
   TXT_NETWORK_MISMATCH_DETECTED,
   TXT_PLEASE_SELECT_A_SLIPPAGE_TOLERANCE,
-  TXT_WARNING
+  TXT_WARNING,
 } from "translations";
+import { getContractByChainId } from "utils/contractGetters/getContractByChainId";
 import { AvalancheFujiCoinType } from "utils/enums/tokens/avalancheFujiTokens";
 import { BnbCoinType } from "utils/enums/tokens/bnbTestnetTokens";
 import { SepoliaCoinType } from "utils/enums/tokens/sepoliaTokens";
@@ -54,9 +56,10 @@ export const BuyTicketEthModal: FC<BuyTicketModalProps> = ({
   const { t } = useTranslation();
   const { xs } = useBreakpoint();
   const { chainId, isConnected } = useConnection();
+  const wagmiConfig = useConfig();
   const { mutateAsync: switchChainAsync } = useSwitchChain();
   const isInPhantomApp = useIsInPhantomApp();
-  const { coin, roundId, networkId } = usePlayContext();
+  const { coin, roundId, networkId, setRoundData } = usePlayContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [switchModalOpen, setSwitchModalOpen] = useState(false);
   const [isConfirmActive, setIsConfirmActive] = useState(false);
@@ -65,6 +68,8 @@ export const BuyTicketEthModal: FC<BuyTicketModalProps> = ({
   const [slippageError, setSlippageError] = useState<string | null>(null);
   const previousTicketCounterRef = useRef(ticketCounter);
   const queryClient = useQueryClient();
+  const networkIdRef = useRef(networkId);
+  networkIdRef.current = networkId;
 
   const titleText = isConfirmActive
     ? t(TXT_CONFIRM_ENTRIES)
@@ -72,15 +77,21 @@ export const BuyTicketEthModal: FC<BuyTicketModalProps> = ({
       ? t(TXT_INCREASE_YOUR_CHANCES)
       : t(TXT_BUY_TICKETS);
 
-  const showModal = async () => {
-    if (Number(chainId) === Number(networkId)) {
+  const showModal = useCallback(async () => {
+    const targetNetworkId = networkIdRef.current;
+    if (targetNetworkId == null) {
+      return;
+    }
+
+    const walletChainId = getConnection(wagmiConfig).chainId;
+    if (walletChainId != null && Number(walletChainId) === Number(targetNetworkId)) {
       setIsModalOpen(true);
       return;
     }
 
     try {
-      const newChain = await switchChainAsync({ chainId: Number(networkId) });
-      if (Number(networkId) !== Number(newChain?.id)) {
+      const newChain = await switchChainAsync({ chainId: Number(targetNetworkId) });
+      if (Number(targetNetworkId) !== Number(newChain?.id)) {
         warningNotification({ message: t(TXT_WARNING), description: t(TXT_NETWORK_MISMATCH_DETECTED), duration: 4 });
         return;
       }
@@ -93,12 +104,12 @@ export const BuyTicketEthModal: FC<BuyTicketModalProps> = ({
 
       errorNotification({ message: t(TXT_ERROR), description: t(TXT_FAILED_TO_SWITCH_CHAIN) });
     }
-  };
+  }, [switchChainAsync, t, wagmiConfig]);
 
   const isNativeEvmToken =
     !!coin && ([SepoliaCoinType.Ethereum, AvalancheFujiCoinType.AVAX, BnbCoinType.BNB] as CoinType[]).includes(coin);
 
-  const checkAbilityToPurchase = () => {
+  const checkAbilityToPurchase = useCallback(async () => {
     if (isInPhantomApp) {
       warningNotification({
         message: t(TXT_CANNOT_PURCHASE_ETH_ON_PHANTOM),
@@ -109,11 +120,31 @@ export const BuyTicketEthModal: FC<BuyTicketModalProps> = ({
     }
 
     if (isConnected) {
-      showModal();
+      const playNetworkId = networkIdRef.current;
+      if (playNetworkId == null) {
+        setSwitchModalOpen(true);
+        return;
+      }
+
+      const contract = getContractByChainId(playNetworkId);
+      const tokenAddress = getTokenAddress({ coin, chainId: playNetworkId });
+      if (tokenAddress && tokenAddress.startsWith("0x") && !!contract?.read?.getCurrentRaffleRoundId) {
+        try {
+          const nextRaffleRoundId = await contract.read.getCurrentRaffleRoundId([tokenAddress as `0x${string}`]);
+          if (roundId !== nextRaffleRoundId) {
+            setRoundData({ roundId: nextRaffleRoundId });
+          }
+        } catch (error) {
+          console.error("Error fetching next raffle round ID:", error);
+          return;
+        } finally {
+          void showModal();
+        }
+      }
     } else {
       setSwitchModalOpen(true);
     }
-  };
+  }, [coin, isConnected, isInPhantomApp, networkId, roundId, setRoundData, showModal, t]);
 
   const switchModalCallback = () => {
     setSwitchModalOpen(false);

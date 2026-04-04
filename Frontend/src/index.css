@@ -17,6 +17,57 @@ html {
   background-color: #131313;
 }
 
+/* Themed scrollbars (viewport + common Ant Design overflow areas) */
+html,
+.ant-modal .ant-modal-body,
+.ant-drawer .ant-drawer-body,
+.ant-table-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-border-neutral, #3f3f46) transparent;
+}
+
+html::-webkit-scrollbar,
+.ant-modal .ant-modal-body::-webkit-scrollbar,
+.ant-drawer .ant-drawer-body::-webkit-scrollbar,
+.ant-table-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+.ant-modal .ant-modal-body::-webkit-scrollbar-track,
+.ant-drawer .ant-drawer-body::-webkit-scrollbar-track,
+.ant-table-body::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 100px;
+}
+
+html::-webkit-scrollbar-thumb,
+.ant-modal .ant-modal-body::-webkit-scrollbar-thumb,
+.ant-drawer .ant-drawer-body::-webkit-scrollbar-thumb,
+.ant-table-body::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-border-neutral, #3f3f46);
+  border-radius: 100px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+.ant-modal .ant-modal-body::-webkit-scrollbar-thumb:hover,
+.ant-drawer .ant-drawer-body::-webkit-scrollbar-thumb:hover,
+.ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-text-secondary-foreground, #c084fc);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-corner,
+.ant-modal .ant-modal-body::-webkit-scrollbar-corner,
+.ant-drawer .ant-drawer-body::-webkit-scrollbar-corner,
+.ant-table-body::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 .ant-typography {
   font-family: "Geist Variable", sans-serif;
   color: inherit;

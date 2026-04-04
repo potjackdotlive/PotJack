@@ -9,6 +9,7 @@ export const useStyles = () => ({
     align-items: flex-start;
     gap: 16px;
     align-self: stretch;
+    min-height: 0;
     border-radius: 26px;
     border: 1px solid var(--color-neutral-border-neutral, #3f3f46);
     background: var(--color-item-background-card, #131313);

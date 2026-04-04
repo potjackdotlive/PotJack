@@ -22,7 +22,9 @@ export const FooterEvmNative = ({ buyHandler, ticketCounter }: BuyTicketFooterPr
         .toNumber()
     : 0;
 
-  const canBuy = toBig(price || 0).lt(balance?.value?.toString() || 0);
+  const canBuy = toBig(price || 0)
+    .mul(ticketCounter)
+    .lt(balance?.value?.toString() || 0);
 
   return (
     <FooterView balance={numberBalance} buyHandler={buyHandler} token={SepoliaCoinType.Ethereum} canBuy={canBuy} />

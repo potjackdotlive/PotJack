@@ -18,7 +18,6 @@ import {
   type ParsedClaimPrizeSolInstruction,
   type ParsedFundRentVaultInstruction,
   type ParsedFundVrfVaultInstruction,
-  type ParsedGetCumulativeTicketsInstruction,
   type ParsedGetCurrentRaffleRoundIdInstruction,
   type ParsedGetRaffleRoundCountInstruction,
   type ParsedGetRaffleRoundDataInstruction,
@@ -29,18 +28,15 @@ import {
   type ParsedGetTokenRaffleInstruction,
   type ParsedInitializeClientStateInstruction,
   type ParsedInitializeRaffleInstruction,
-  type ParsedInitializeRoundInstruction,
   type ParsedInitializeSolRaffleInstruction,
   type ParsedRequestRandomnessInstruction,
-  type ParsedSetTestTicketPriceInstruction,
   type ParsedSetWinnerAddressInstruction,
-  type ParsedTestCalculatePriceInstruction,
   type ParsedWithdrawRentVaultInstruction,
   type ParsedWithdrawVrfVaultInstruction,
 } from "../instructions";
 
 export const RAFFLE_PROGRAM_ADDRESS =
-  "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85" as Address<"Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85">;
+  "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh" as Address<"31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh">;
 
 export enum RaffleAccount {
   Client,
@@ -167,7 +163,6 @@ export enum RaffleInstruction {
   ClaimPrizeSol,
   FundRentVault,
   FundVrfVault,
-  GetCumulativeTickets,
   GetCurrentRaffleRoundId,
   GetRaffleRoundCount,
   GetRaffleRoundData,
@@ -178,12 +173,9 @@ export enum RaffleInstruction {
   GetTokenRaffle,
   InitializeClientState,
   InitializeRaffle,
-  InitializeRound,
   InitializeSolRaffle,
   RequestRandomness,
-  SetTestTicketPrice,
   SetWinnerAddress,
-  TestCalculatePrice,
   WithdrawRentVault,
   WithdrawVrfVault,
 }
@@ -235,17 +227,6 @@ export function identifyRaffleInstruction(
     )
   ) {
     return RaffleInstruction.FundVrfVault;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([64, 57, 10, 126, 172, 20, 56, 215]),
-      ),
-      0,
-    )
-  ) {
-    return RaffleInstruction.GetCumulativeTickets;
   }
   if (
     containsBytes(
@@ -361,17 +342,6 @@ export function identifyRaffleInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([43, 135, 19, 93, 14, 225, 131, 188]),
-      ),
-      0,
-    )
-  ) {
-    return RaffleInstruction.InitializeRound;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([73, 0, 235, 207, 121, 115, 50, 23]),
       ),
       0,
@@ -394,34 +364,12 @@ export function identifyRaffleInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([143, 243, 124, 103, 50, 219, 62, 40]),
-      ),
-      0,
-    )
-  ) {
-    return RaffleInstruction.SetTestTicketPrice;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([155, 18, 56, 22, 22, 1, 188, 125]),
       ),
       0,
     )
   ) {
     return RaffleInstruction.SetWinnerAddress;
-  }
-  if (
-    containsBytes(
-      data,
-      fixEncoderSize(getBytesEncoder(), 8).encode(
-        new Uint8Array([42, 160, 154, 127, 134, 251, 71, 95]),
-      ),
-      0,
-    )
-  ) {
-    return RaffleInstruction.TestCalculatePrice;
   }
   if (
     containsBytes(
@@ -451,7 +399,7 @@ export function identifyRaffleInstruction(
 }
 
 export type ParsedRaffleInstruction<
-  TProgram extends string = "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85",
+  TProgram extends string = "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh",
 > =
   | ({
       instructionType: RaffleInstruction.BuyTicketsSol;
@@ -465,9 +413,6 @@ export type ParsedRaffleInstruction<
   | ({
       instructionType: RaffleInstruction.FundVrfVault;
     } & ParsedFundVrfVaultInstruction<TProgram>)
-  | ({
-      instructionType: RaffleInstruction.GetCumulativeTickets;
-    } & ParsedGetCumulativeTicketsInstruction<TProgram>)
   | ({
       instructionType: RaffleInstruction.GetCurrentRaffleRoundId;
     } & ParsedGetCurrentRaffleRoundIdInstruction<TProgram>)
@@ -499,23 +444,14 @@ export type ParsedRaffleInstruction<
       instructionType: RaffleInstruction.InitializeRaffle;
     } & ParsedInitializeRaffleInstruction<TProgram>)
   | ({
-      instructionType: RaffleInstruction.InitializeRound;
-    } & ParsedInitializeRoundInstruction<TProgram>)
-  | ({
       instructionType: RaffleInstruction.InitializeSolRaffle;
     } & ParsedInitializeSolRaffleInstruction<TProgram>)
   | ({
       instructionType: RaffleInstruction.RequestRandomness;
     } & ParsedRequestRandomnessInstruction<TProgram>)
   | ({
-      instructionType: RaffleInstruction.SetTestTicketPrice;
-    } & ParsedSetTestTicketPriceInstruction<TProgram>)
-  | ({
       instructionType: RaffleInstruction.SetWinnerAddress;
     } & ParsedSetWinnerAddressInstruction<TProgram>)
-  | ({
-      instructionType: RaffleInstruction.TestCalculatePrice;
-    } & ParsedTestCalculatePriceInstruction<TProgram>)
   | ({
       instructionType: RaffleInstruction.WithdrawRentVault;
     } & ParsedWithdrawRentVaultInstruction<TProgram>)

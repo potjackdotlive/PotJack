@@ -1,8 +1,6 @@
 import React, { Dispatch, FC, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 import { Divider, Flex, Typography } from "antd";
-import { Address } from "viem";
-import { useCurrentRaffleRoundId } from "hooks/abi/useCurrentRaffleRoundId";
 import { useMediaQueryMatches } from "hooks/useMediaQueryMatches";
 import { useWalletConnection } from "hooks/useWalletConnection";
 import { CoinsStatus } from "pages/Play/components/BuyTicketEth/components/CoinStatus/CoinStatus";
@@ -19,7 +17,6 @@ import { TXT_TICKET_PRICE, TXT_TOTAL_ENTRY } from "translations";
 import { SepoliaCoinType } from "utils/enums/tokens/sepoliaTokens";
 import { coinFormatter } from "utils/formatters/coinFormatter";
 import { getCoinScaledValue } from "utils/getCoinScaledValue";
-import { getTokenAddress } from "utils/getTokenAddress";
 import { Noop } from "utils/noop";
 import { CoinType } from "utils/types";
 
@@ -64,12 +61,7 @@ export const BuyForm: FC<Props> = ({
   const { sm } = useMediaQueryMatches();
   const wc = useWalletConnection();
 
-  const tokenAddress = getTokenAddress({ coin, chainId: networkId });
-
-  const roundIdQuery = useCurrentRaffleRoundId([tokenAddress as Address]);
-  const roundExists = roundIdQuery && roundIdQuery.data && roundIdQuery.data[0];
-
-  const { raffleRoundData } = useRaffleRound({ coin, roundId, enabled: roundExists, chainId: networkId });
+  const { raffleRoundData } = useRaffleRound({ coin, roundId, enabled: true, chainId: networkId });
 
   const roundData = raffleRoundData?.round;
   const playersData = raffleRoundData?.players || [];

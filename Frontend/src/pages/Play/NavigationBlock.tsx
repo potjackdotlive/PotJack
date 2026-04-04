@@ -26,7 +26,7 @@ export const NavigationBlock = () => {
 
   return (
     <PlayContainer css={styles.sideBar}>
-      <Flex gap={8} justify="space-between" css={commonStyles.fullWidth}>
+      <Flex gap={8} justify="space-between" css={commonStyles.fullWidth} flex="none">
         <InfoTitle main={t(TXT_ENTRIES)} info={t(TXT_ENTRIES_INFO)} />
         <ChipButton
           text={networkId === null ? t(TXT_ALL_POOLS) : getChainNameById(networkId as ChainIdType)}
@@ -35,7 +35,7 @@ export const NavigationBlock = () => {
         />
       </Flex>
 
-      <Flex vertical gap={8} css={commonStyles.fullWidth}>
+      <Flex vertical gap={8} css={[commonStyles.fullWidth, styles.sideBarBody]}>
         <MultichainListItem
           rootStyles={[styles.multichainItem, ...(networkId ? [] : [styles.multichainItemActive])]}
           onClick={handleMultichainClick}

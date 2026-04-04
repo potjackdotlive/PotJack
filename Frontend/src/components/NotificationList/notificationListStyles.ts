@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { appScrollbar } from "styles/scrollbarStyles";
 
 export const notificationListStyles = {
   contentRoot: css`
@@ -14,6 +15,7 @@ export const notificationListStyles = {
 
     max-height: 300px;
     overflow-y: auto;
+    ${appScrollbar}
 
     /* shadow-tooltip */
     box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.45);

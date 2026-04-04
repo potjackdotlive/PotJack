@@ -30,20 +30,22 @@ export const NotificationList = () => {
     fetchMore,
   } = useGetUserNotificationsQuery({
     variables: {
-      userAddress: (address as string) || "",
+      userAddress: address ?? "",
       limit: NOTIFICATIONS_PER_PAGE * page,
       offset: 0,
       unreadOnly: false,
     },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-first",
     pollInterval: POLL_INTERVAL,
-    skipPollAttempt: () => !popoverOpen,
     skip: !address,
   });
 
   const totalCount = notificationsData?.notifications?.totalCount;
   const notifications = notificationsData?.notifications?.notifications || [];
+
+  useApolloErrorHandler(error);
+
+  const hasUnreadNotifications = useMemo(() => notifications.some((n) => !n.isRead), [notifications, address, notificationsData, popoverOpen]);
 
   useEffect(() => {
     if (initialData) {
@@ -51,9 +53,9 @@ export const NotificationList = () => {
     }
   }, [initialData]);
 
-  useApolloErrorHandler(error);
-
-  const hasUnreadNotifications = useMemo(() => notifications.some((n) => !n.isRead), [notifications]);
+  useEffect(() => {
+    setPage(1);
+  }, [address]);
 
   return (
     <Popover

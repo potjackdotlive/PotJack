@@ -131,9 +131,11 @@ export interface RaffleInterface extends Interface {
       | "performUpkeep"
       | "rawFulfillRandomWords"
       | "renounceRole"
+      | "resetCustomPrice"
       | "revokeRole"
       | "s_vrfCoordinator"
       | "setCoordinator"
+      | "setCustomPrice"
       | "supportedTokenCount"
       | "supportedTokens"
       | "supportsInterface"
@@ -249,6 +251,10 @@ export interface RaffleInterface extends Interface {
     values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "resetCustomPrice",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "revokeRole",
     values: [BytesLike, AddressLike]
   ): string;
@@ -259,6 +265,10 @@ export interface RaffleInterface extends Interface {
   encodeFunctionData(
     functionFragment: "setCoordinator",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setCustomPrice",
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "supportedTokenCount",
@@ -365,6 +375,10 @@ export interface RaffleInterface extends Interface {
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "resetCustomPrice",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "s_vrfCoordinator",
@@ -372,6 +386,10 @@ export interface RaffleInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setCoordinator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setCustomPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -676,7 +694,7 @@ export interface Raffle extends BaseContract {
 
   getCurrentRaffleRoundId: TypedContractMethod<
     [token: AddressLike],
-    [[boolean, bigint] & { hasOpenRound: boolean; roundId: bigint }],
+    [bigint],
     "view"
   >;
 
@@ -779,6 +797,12 @@ export interface Raffle extends BaseContract {
     "nonpayable"
   >;
 
+  resetCustomPrice: TypedContractMethod<
+    [token: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   revokeRole: TypedContractMethod<
     [role: BytesLike, account: AddressLike],
     [void],
@@ -789,6 +813,12 @@ export interface Raffle extends BaseContract {
 
   setCoordinator: TypedContractMethod<
     [_vrfCoordinator: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setCustomPrice: TypedContractMethod<
+    [token: AddressLike, customPrice: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -854,11 +884,7 @@ export interface Raffle extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "getCurrentRaffleRoundId"
-  ): TypedContractMethod<
-    [token: AddressLike],
-    [[boolean, bigint] & { hasOpenRound: boolean; roundId: bigint }],
-    "view"
-  >;
+  ): TypedContractMethod<[token: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getLastRounds"
   ): TypedContractMethod<
@@ -957,6 +983,9 @@ export interface Raffle extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "resetCustomPrice"
+  ): TypedContractMethod<[token: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "revokeRole"
   ): TypedContractMethod<
     [role: BytesLike, account: AddressLike],
@@ -969,6 +998,13 @@ export interface Raffle extends BaseContract {
   getFunction(
     nameOrSignature: "setCoordinator"
   ): TypedContractMethod<[_vrfCoordinator: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setCustomPrice"
+  ): TypedContractMethod<
+    [token: AddressLike, customPrice: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "supportedTokenCount"
   ): TypedContractMethod<[], [bigint], "view">;

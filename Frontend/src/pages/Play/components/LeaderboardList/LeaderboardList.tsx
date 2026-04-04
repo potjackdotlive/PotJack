@@ -30,15 +30,17 @@ export const LeaderboardList: FC<Props> = ({ selfStats, showLoadMore, participan
   const showDivider = !!selfStats?.length && !!participantsWithoutSelf?.length;
 
   return (
-    <Flex gap={8} vertical css={leaderboardListStyles.root}>
-      {selfStats.map((p) => (
-        <Participant {...p} key={getListItemKey(p)} />
-      ))}
-      {showDivider && <Divider />}
-      <Flex gap={8} vertical css={leaderboardListStyles.otherParticipants}>
-        {participantsWithoutSelf.map((p) => (
-          <Participant {...p} key={getListItemKey(p)} hideSelf />
+    <Flex gap={0} vertical css={leaderboardListStyles.root}>
+      <Flex gap={8} vertical css={leaderboardListStyles.scrollSection}>
+        {selfStats.map((p) => (
+          <Participant {...p} key={getListItemKey(p)} />
         ))}
+        {showDivider && <Divider />}
+        <Flex gap={8} vertical css={leaderboardListStyles.otherParticipants}>
+          {participantsWithoutSelf.map((p) => (
+            <Participant {...p} key={getListItemKey(p)} hideSelf />
+          ))}
+        </Flex>
       </Flex>
       {showLoadMore && (
         <Flex css={leaderboardListStyles.loadMoreWrapper}>

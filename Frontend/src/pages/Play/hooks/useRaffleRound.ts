@@ -42,7 +42,7 @@ export const useRaffleRound = ({ coin, roundId, chainId, enabled = true }: Props
 
   const { data } = useLastRounds();
 
-  const actualRoundId = chainId && coin && data?.[chainId][coin]?.actualRoundId;
+  const actualRoundId = chainId && coin && data?.[chainId]?.[coin]?.actualRoundId;
   const fetchCheck = actualRoundId !== null && actualRoundId !== undefined && roundId !== null && roundId !== undefined;
 
   const query = useQuery({

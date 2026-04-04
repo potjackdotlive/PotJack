@@ -21,27 +21,21 @@ import {
   getBytesEncoder,
   getI64Decoder,
   getI64Encoder,
-  getOptionDecoder,
-  getOptionEncoder,
   getStructDecoder,
   getStructEncoder,
-  getU64Decoder,
-  getU64Encoder,
   getU8Decoder,
   getU8Encoder,
   transformEncoder,
   type Account,
   type Address,
-  type Codec,
-  type Decoder,
   type EncodedAccount,
-  type Encoder,
   type FetchAccountConfig,
   type FetchAccountsConfig,
+  type FixedSizeCodec,
+  type FixedSizeDecoder,
+  type FixedSizeEncoder,
   type MaybeAccount,
   type MaybeEncodedAccount,
-  type Option,
-  type OptionOrNullable,
   type ReadonlyUint8Array,
 } from "gill";
 
@@ -63,7 +57,6 @@ export type RaffleState = {
   createdAt: bigint;
   vrfRequestCounter: number;
   bump: number;
-  testTicketPrice: Option<bigint>;
 };
 
 export type RaffleStateArgs = {
@@ -73,11 +66,10 @@ export type RaffleStateArgs = {
   createdAt: number | bigint;
   vrfRequestCounter: number;
   bump: number;
-  testTicketPrice: OptionOrNullable<number | bigint>;
 };
 
 /** Gets the encoder for {@link RaffleStateArgs} account data. */
-export function getRaffleStateEncoder(): Encoder<RaffleStateArgs> {
+export function getRaffleStateEncoder(): FixedSizeEncoder<RaffleStateArgs> {
   return transformEncoder(
     getStructEncoder([
       ["discriminator", fixEncoderSize(getBytesEncoder(), 8)],
@@ -87,14 +79,13 @@ export function getRaffleStateEncoder(): Encoder<RaffleStateArgs> {
       ["createdAt", getI64Encoder()],
       ["vrfRequestCounter", getU8Encoder()],
       ["bump", getU8Encoder()],
-      ["testTicketPrice", getOptionEncoder(getU64Encoder())],
     ]),
     (value) => ({ ...value, discriminator: RAFFLE_STATE_DISCRIMINATOR }),
   );
 }
 
 /** Gets the decoder for {@link RaffleState} account data. */
-export function getRaffleStateDecoder(): Decoder<RaffleState> {
+export function getRaffleStateDecoder(): FixedSizeDecoder<RaffleState> {
   return getStructDecoder([
     ["discriminator", fixDecoderSize(getBytesDecoder(), 8)],
     ["authority", getAddressDecoder()],
@@ -103,12 +94,14 @@ export function getRaffleStateDecoder(): Decoder<RaffleState> {
     ["createdAt", getI64Decoder()],
     ["vrfRequestCounter", getU8Decoder()],
     ["bump", getU8Decoder()],
-    ["testTicketPrice", getOptionDecoder(getU64Decoder())],
   ]);
 }
 
 /** Gets the codec for {@link RaffleState} account data. */
-export function getRaffleStateCodec(): Codec<RaffleStateArgs, RaffleState> {
+export function getRaffleStateCodec(): FixedSizeCodec<
+  RaffleStateArgs,
+  RaffleState
+> {
   return combineCodec(getRaffleStateEncoder(), getRaffleStateDecoder());
 }
 
@@ -163,4 +156,8 @@ export async function fetchAllMaybeRaffleState(
 ): Promise<MaybeAccount<RaffleState>[]> {
   const maybeAccounts = await fetchEncodedAccounts(rpc, addresses, config);
   return maybeAccounts.map((maybeAccount) => decodeRaffleState(maybeAccount));
+}
+
+export function getRaffleStateSize(): number {
+  return 83;
 }

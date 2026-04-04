@@ -38,7 +38,7 @@ export const PlayersBlock = () => {
 
   return (
     <PlayContainer css={[styles.sideBar, !xl && commonStyles.fullWidth]}>
-      <Flex justify="space-between" gap={8} css={commonStyles.fullWidth}>
+      <Flex justify="space-between" gap={8} css={commonStyles.fullWidth} flex="none">
         <InfoTitle
           main={showParticipants ? t(TXT_PARTICIPANTS) : t(TXT_LEADERBOARD)}
           info={showParticipants ? t(TXT_PARTICIPANTS_INFO) : t(TXT_LEADERBOARD_INFO)}
@@ -54,24 +54,22 @@ export const PlayersBlock = () => {
         )}
       </Flex>
 
-      {loading || isSelfDataLoading ? (
-        <Flex justify="center" align="center" css={[commonStyles.fullWidth, commonStyles.fullHeight]}>
-          <Spin size="large" />
-        </Flex>
-      ) : (
-        <>
-          {showRaffleNotStarted ? (
-            <RaffleNotStarted />
-          ) : (
-            <LeaderboardList
-              selfStats={selfData?.selfStats || []}
-              showLoadMore={(leadersData?.userStats?.totalPages || 0) > currentPage}
-              participants={leadersData?.userStats?.content || []}
-              loadMoreParticipants={loadMoreParticipants}
-            />
-          )}
-        </>
-      )}
+      <Flex vertical css={[commonStyles.fullWidth, styles.sideBarColumn]}>
+        {loading || isSelfDataLoading ? (
+          <Flex flex={1} justify="center" align="center" css={commonStyles.fullWidth}>
+            <Spin size="large" />
+          </Flex>
+        ) : showRaffleNotStarted ? (
+          <RaffleNotStarted />
+        ) : (
+          <LeaderboardList
+            selfStats={selfData?.selfStats || []}
+            showLoadMore={(leadersData?.userStats?.totalPages || 0) > currentPage}
+            participants={leadersData?.userStats?.content || []}
+            loadMoreParticipants={loadMoreParticipants}
+          />
+        )}
+      </Flex>
     </PlayContainer>
   );
 };

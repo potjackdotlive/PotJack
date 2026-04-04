@@ -12,20 +12,14 @@ import {
   getAddressEncoder,
   getI64Decoder,
   getI64Encoder,
-  getOptionDecoder,
-  getOptionEncoder,
   getStructDecoder,
   getStructEncoder,
-  getU64Decoder,
-  getU64Encoder,
   getU8Decoder,
   getU8Encoder,
   type Address,
-  type Codec,
-  type Decoder,
-  type Encoder,
-  type Option,
-  type OptionOrNullable,
+  type FixedSizeCodec,
+  type FixedSizeDecoder,
+  type FixedSizeEncoder,
 } from "gill";
 
 export type RaffleStateView = {
@@ -34,7 +28,6 @@ export type RaffleStateView = {
   beneficiary: Address;
   createdAt: bigint;
   vrfRequestCounter: number;
-  testTicketPrice: Option<bigint>;
 };
 
 export type RaffleStateViewArgs = {
@@ -43,32 +36,29 @@ export type RaffleStateViewArgs = {
   beneficiary: Address;
   createdAt: number | bigint;
   vrfRequestCounter: number;
-  testTicketPrice: OptionOrNullable<number | bigint>;
 };
 
-export function getRaffleStateViewEncoder(): Encoder<RaffleStateViewArgs> {
+export function getRaffleStateViewEncoder(): FixedSizeEncoder<RaffleStateViewArgs> {
   return getStructEncoder([
     ["authority", getAddressEncoder()],
     ["entranceFeePercentage", getU8Encoder()],
     ["beneficiary", getAddressEncoder()],
     ["createdAt", getI64Encoder()],
     ["vrfRequestCounter", getU8Encoder()],
-    ["testTicketPrice", getOptionEncoder(getU64Encoder())],
   ]);
 }
 
-export function getRaffleStateViewDecoder(): Decoder<RaffleStateView> {
+export function getRaffleStateViewDecoder(): FixedSizeDecoder<RaffleStateView> {
   return getStructDecoder([
     ["authority", getAddressDecoder()],
     ["entranceFeePercentage", getU8Decoder()],
     ["beneficiary", getAddressDecoder()],
     ["createdAt", getI64Decoder()],
     ["vrfRequestCounter", getU8Decoder()],
-    ["testTicketPrice", getOptionDecoder(getU64Decoder())],
   ]);
 }
 
-export function getRaffleStateViewCodec(): Codec<
+export function getRaffleStateViewCodec(): FixedSizeCodec<
   RaffleStateViewArgs,
   RaffleStateView
 > {

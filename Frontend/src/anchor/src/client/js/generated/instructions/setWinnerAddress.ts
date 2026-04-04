@@ -34,9 +34,9 @@ import {
   transformEncoder,
   type WritableAccount,
 } from "gill";
-import { u32ToLittleEndianBuffer } from "utils/buffer";
 import { RAFFLE_PROGRAM_ADDRESS } from "../programs";
 import { expectAddress, expectSome, getAccountMetaFactory, type ResolvedAccount } from "../shared";
+import { u32ToLittleEndianBuffer } from "utils/buffer";
 
 export const SET_WINNER_ADDRESS_DISCRIMINATOR = new Uint8Array([155, 18, 56, 22, 22, 1, 188, 125]);
 

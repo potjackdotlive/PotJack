@@ -3,7 +3,6 @@ import { formatEther } from "viem";
 import { QUERY_KEYS } from "constants/queryKeys";
 import { usePlayContext } from "pages/Play/contexts/playContext/playContextUtils";
 import { getContractByChainId } from "utils/contractGetters/getContractByChainId";
-import { toBig } from "utils/toBig";
 import { ChainIdType } from "utils/types";
 
 type Props = {
@@ -26,6 +25,6 @@ export const useGetTicketPriceInEth = ({ enabled = true, amount = 1 }: Props) =>
   return {
     price,
     isFetched,
-    formatted: formatEther(BigInt(toBig(price).mul(amount).toString())),
+    formatted: formatEther(price * BigInt(amount)),
   };
 };

@@ -2,13 +2,13 @@ import { Address } from "viem";
 import { RAFFLE_PROGRAM_ADDRESS } from "anchor/src";
 
 // testnet todo: update
-export const ContractAddressSepolia = "0x3673626c5fb911e12F47CDD1140bb5405Ef91F91";
-export const ContractAddressArbitrumSepolia = "0x4aef938817510FE4298b9A2a6145a74065Ece69a";
-export const ContractAddressPolygonAmoy = "0x45b2275a3fcC919785ECF0D27Fcd52DE415Fd238";
-export const ContractAddressOptimismSepolia = "0x1307Fa8E47B226F36fC2C3280958C8744E3f254E";
-export const ContractAddressAvalancheFuji = "0xb77A84d44624Ad02F0a86C7163b1B30699650e7b";
-export const ContractAddressBnbSmartChainTestnet = "0xC4Dc0f40Ef3eBC8d755D7c9d90ED87582e0f6034";
-export const ContractAddressBaseSepolia = "0x453Ca8ca0556Bd3685CA8179F55b63390Caf9913";
+export const ContractAddressSepolia = "0x5632A23D84165B8E88Af072dA32165956eBb6cd6";
+export const ContractAddressArbitrumSepolia = "0x15011994aC00e95Cd297EEC893E68a7d6c09e727";
+export const ContractAddressPolygonAmoy = "0x8de15259e46C1E639cc2485D6088883a2DC61AA0";
+export const ContractAddressOptimismSepolia = "0x3f457340658CDa98519eE17835c8CC3eeaE56356";
+export const ContractAddressAvalancheFuji = "0x495b14F91Ea164c9DF3d828f2408d7D9F1A6A105";
+export const ContractAddressBnbSmartChainTestnet = "0x7bce9988650CE0d7bB861eB6b181275EA3aC7473";
+export const ContractAddressBaseSepolia = "0xC4Dc0f40Ef3eBC8d755D7c9d90ED87582e0f6034";
 
 // mainnet todo: update
 export const ContractAddressEthereum = "" as Address;

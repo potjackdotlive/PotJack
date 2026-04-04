@@ -29,7 +29,7 @@ export const BuyTicketProvider: FC<BuyTicketModalProps> = (props) => {
   const { networkId } = usePlayContext();
 
   // todo: mainnet
-  switch (networkId) {
+  switch (Number(networkId)) {
     case SEPOLIA_CHAIN_ID:
     case SEPOLIA_ARBITRUM_CHAIN_ID:
     case POLYGON_AMOY_TESTNET_ID:

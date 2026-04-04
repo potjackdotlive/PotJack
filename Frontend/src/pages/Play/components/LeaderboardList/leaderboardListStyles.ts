@@ -1,24 +1,28 @@
 import { css } from "@emotion/react";
+import { appScrollbar } from "styles/scrollbarStyles";
 import { typographyStyles } from "styles/typography";
 
 export const leaderboardListStyles = {
   root: css`
+    flex: 1 1 0;
+    min-height: 0;
     width: 100%;
-    position: relative;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  `,
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+  scrollSection: css`
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+    ${appScrollbar}
   `,
 
   loadMoreWrapper: css`
+    flex-shrink: 0;
     width: 100%;
-    position: absolute;
-    bottom: 0;
-    height: 40px;
+    padding-top: 8px;
     background: linear-gradient(0deg, var(--color-item-background-card, #131313) 33.24%, rgba(24, 24, 27, 0) 100%);
 
     & button span {
@@ -28,8 +32,6 @@ export const leaderboardListStyles = {
   `,
 
   otherParticipants: css`
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    overflow: auto;
+    flex-shrink: 0;
   `,
 };

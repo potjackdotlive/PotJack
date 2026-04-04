@@ -1,3 +1,4 @@
+import { getAddress } from "ethers";
 import { Address } from "viem";
 import {
   ContractAddressArbitrumSepolia,
@@ -6,7 +7,7 @@ import {
   ContractAddressBnbSmartChainTestnet,
   ContractAddressOptimismSepolia,
   ContractAddressPolygonAmoy,
-  ContractAddressSepolia,
+  ContractAddressSepolia
 } from "utils/contractAddresses";
 import { getArbitrumSepoliaTokenNameByAddress } from "utils/enums/addresses/arbitrumSepoliaTokenAddresses";
 import { getAvalancheFujiTokenNameByAddress } from "utils/enums/addresses/avalancheFujiTokenAddresses";
@@ -48,7 +49,7 @@ export const getTokenNameByContractAndTokenAddresses = ({
   tokenAddress,
   contractAddress,
 }: GetTokenNameByContractAndTokenAddressProps) => {
-  switch (contractAddress) {
+  switch (getAddress(contractAddress)) {
     case ContractAddressSepolia:
       return getSepoliaTokenNameByAddress(tokenAddress);
     case ContractAddressArbitrumSepolia:

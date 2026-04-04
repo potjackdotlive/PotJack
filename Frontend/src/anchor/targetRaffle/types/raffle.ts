@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/raffle.json`.
  */
 export type Raffle = {
-  "address": "Ah737jVNXFRoUMo8qyCGhBW4HyFz6MvKMVvEkgqm5o85",
+  "address": "31qdCe9TKthjQGPmZ8ZzoU7KD8vbq1F6Zmo2K4wfERHh",
   "metadata": {
     "name": "raffle",
     "version": "0.1.0",
@@ -472,38 +472,38 @@ export type Raffle = {
               {
                 "kind": "const",
                 "value": [
-                  143,
-                  255,
-                  61,
-                  124,
-                  19,
-                  225,
-                  65,
-                  94,
-                  249,
-                  37,
-                  60,
-                  50,
-                  126,
-                  67,
-                  27,
+                  29,
+                  238,
+                  90,
+                  117,
+                  110,
+                  0,
+                  36,
                   220,
-                  163,
-                  155,
-                  72,
-                  63,
-                  14,
-                  92,
-                  64,
-                  59,
-                  249,
-                  149,
+                  60,
+                  8,
+                  142,
+                  199,
+                  244,
+                  240,
+                  107,
+                  29,
+                  228,
+                  225,
                   209,
-                  182,
-                  120,
-                  10,
-                  201,
-                  178
+                  126,
+                  190,
+                  179,
+                  45,
+                  90,
+                  119,
+                  170,
+                  51,
+                  103,
+                  146,
+                  69,
+                  48,
+                  16
                 ]
               },
               {
@@ -772,9 +772,6 @@ export type Raffle = {
     },
     {
       "name": "fundRentVault",
-      "docs": [
-        "Будь-хто може викликати"
-      ],
       "discriminator": [
         244,
         253,
@@ -788,9 +785,6 @@ export type Raffle = {
       "accounts": [
         {
           "name": "rentVault",
-          "docs": [
-            "PDA for storing funds fo rent"
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -831,9 +825,6 @@ export type Raffle = {
     },
     {
       "name": "fundVrfVault",
-      "docs": [
-        "Будь-хто може викликати"
-      ],
       "discriminator": [
         157,
         124,
@@ -890,106 +881,6 @@ export type Raffle = {
           "type": "u64"
         }
       ]
-    },
-    {
-      "name": "getCumulativeTickets",
-      "discriminator": [
-        64,
-        57,
-        10,
-        126,
-        172,
-        20,
-        56,
-        215
-      ],
-      "accounts": [
-        {
-          "name": "round",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "solRaffle"
-              },
-              {
-                "kind": "arg",
-                "path": "roundId"
-              }
-            ]
-          }
-        },
-        {
-          "name": "solRaffle",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  111,
-                  108,
-                  95,
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "roundTickets",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  116,
-                  105,
-                  99,
-                  107,
-                  101,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "round"
-              }
-            ]
-          }
-        }
-      ],
-      "args": [
-        {
-          "name": "roundId",
-          "type": "u32"
-        }
-      ],
-      "returns": {
-        "vec": "u32"
-      }
     },
     {
       "name": "getCurrentRaffleRoundId",
@@ -1474,138 +1365,6 @@ export type Raffle = {
       ]
     },
     {
-      "name": "initializeRound",
-      "discriminator": [
-        43,
-        135,
-        19,
-        93,
-        14,
-        225,
-        131,
-        188
-      ],
-      "accounts": [
-        {
-          "name": "solRaffle",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  115,
-                  111,
-                  108,
-                  95,
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "round",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "solRaffle"
-              },
-              {
-                "kind": "arg",
-                "path": "roundId"
-              }
-            ]
-          }
-        },
-        {
-          "name": "roundTickets",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  111,
-                  117,
-                  110,
-                  100,
-                  95,
-                  116,
-                  105,
-                  99,
-                  107,
-                  101,
-                  116,
-                  115
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "round"
-              }
-            ]
-          }
-        },
-        {
-          "name": "rentVault",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  101,
-                  110,
-                  116,
-                  95,
-                  118,
-                  97,
-                  117,
-                  108,
-                  116
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "roundId",
-          "type": "u32"
-        }
-      ]
-    },
-    {
       "name": "initializeSolRaffle",
       "discriminator": [
         73,
@@ -1716,9 +1475,6 @@ export type Raffle = {
         },
         {
           "name": "vrfFeeVault",
-          "docs": [
-            "PDA for VRF payment"
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1749,9 +1505,6 @@ export type Raffle = {
         },
         {
           "name": "clientState",
-          "docs": [
-            "State of a registered client."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1777,9 +1530,6 @@ export type Raffle = {
         },
         {
           "name": "client",
-          "docs": [
-            "Registered client PDA."
-          ],
           "writable": true,
           "pda": {
             "seeds": [
@@ -1806,38 +1556,38 @@ export type Raffle = {
               {
                 "kind": "const",
                 "value": [
-                  143,
-                  255,
-                  61,
-                  124,
-                  19,
-                  225,
-                  65,
-                  94,
-                  249,
-                  37,
-                  60,
-                  50,
-                  126,
-                  67,
-                  27,
+                  29,
+                  238,
+                  90,
+                  117,
+                  110,
+                  0,
+                  36,
                   220,
-                  163,
-                  155,
-                  72,
-                  63,
-                  14,
-                  92,
-                  64,
-                  59,
-                  249,
-                  149,
+                  60,
+                  8,
+                  142,
+                  199,
+                  244,
+                  240,
+                  107,
+                  29,
+                  228,
+                  225,
                   209,
-                  182,
-                  120,
-                  10,
-                  201,
-                  178
+                  126,
+                  190,
+                  179,
+                  45,
+                  90,
+                  119,
+                  170,
+                  51,
+                  103,
+                  146,
+                  69,
+                  48,
+                  16
                 ]
               },
               {
@@ -1968,58 +1718,6 @@ export type Raffle = {
                 32
               ]
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "setTestTicketPrice",
-      "discriminator": [
-        143,
-        243,
-        124,
-        103,
-        50,
-        219,
-        62,
-        40
-      ],
-      "accounts": [
-        {
-          "name": "raffleState",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  97,
-                  102,
-                  102,
-                  108,
-                  101,
-                  95,
-                  115,
-                  116,
-                  97,
-                  116,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "authority",
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "price",
-          "type": {
-            "option": "u64"
           }
         }
       ]
@@ -2173,32 +1871,7 @@ export type Raffle = {
       ]
     },
     {
-      "name": "testCalculatePrice",
-      "discriminator": [
-        42,
-        160,
-        154,
-        127,
-        134,
-        251,
-        71,
-        95
-      ],
-      "accounts": [
-        {
-          "name": "btcPriceFeed"
-        },
-        {
-          "name": "solPriceFeed"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "withdrawRentVault",
-      "docs": [
-        "Тільки authority"
-      ],
       "discriminator": [
         102,
         130,
@@ -2280,9 +1953,6 @@ export type Raffle = {
     },
     {
       "name": "withdrawVrfVault",
-      "docs": [
-        "Тільки authority"
-      ],
       "discriminator": [
         14,
         31,
@@ -2935,12 +2605,6 @@ export type Raffle = {
           {
             "name": "bump",
             "type": "u8"
-          },
-          {
-            "name": "testTicketPrice",
-            "type": {
-              "option": "u64"
-            }
           }
         ]
       }
@@ -2969,12 +2633,6 @@ export type Raffle = {
           {
             "name": "vrfRequestCounter",
             "type": "u8"
-          },
-          {
-            "name": "testTicketPrice",
-            "type": {
-              "option": "u64"
-            }
           }
         ]
       }
